@@ -7,11 +7,6 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="user-info">
-    <span id="user-email" class="user-email"></span>
-    <button id="logout-btn" class="btn-logout">Logout</button>
-  </div>
-
   <div class="container">
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -20,6 +15,10 @@
       </div>
       <div id="notes-list" class="notes-list">
         <!-- Notes will be dynamically loaded here -->
+      </div>
+      <div class="sidebar-footer">
+        <span id="user-email" class="user-email"></span>
+        <button id="logout-btn" class="btn-logout">Logout</button>
       </div>
     </aside>
 
@@ -49,7 +48,10 @@
     </main>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"
+          integrity="sha512-/48LKZlCHEHAe/5yJ69B4h1F2vH0X0NbIw2r7TPH6iHN1vOSsY9qLDDLXOMeMHN0xIhpLj7CqpEd/WqX8a+3LQ=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ let autoSaveTimeout = null;
 let isSaving = false;
 let accessToken = null;
 let monacoEditor = null;
+let monacoEditorReady = false;
 
 // DOM Elements
 const notesList = document.getElementById('notes-list');
@@ -25,8 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   initializeMonacoEditor();
-  loadNotes();
   setupEventListeners();
+});
+
+// Cleanup Monaco Editor on page unload to prevent memory leaks
+window.addEventListener('beforeunload', () => {
+  if (monacoEditor) {
+    monacoEditor.dispose();
+    monacoEditor = null;
+    monacoEditorReady = false;
+  }
 });
 
 // Check authentication
@@ -52,32 +61,45 @@ function initializeMonacoEditor() {
   require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' } });
 
   require(['vs/editor/editor.main'], function() {
-    monacoEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
-      value: '',
-      language: 'markdown',
-      theme: 'vs',
-      automaticLayout: true,
-      wordWrap: 'on',
-      lineNumbers: 'off',
-      minimap: { enabled: false },
-      scrollBeyondLastLine: false,
-      fontSize: 16,
-      lineHeight: 24,
-      padding: { top: 20, bottom: 20 },
-      renderLineHighlight: 'none',
-      overviewRulerLanes: 0,
-      hideCursorInOverviewRuler: true,
-      overviewRulerBorder: false,
-      scrollbar: {
-        vertical: 'auto',
-        horizontal: 'auto'
-      }
-    });
+    try {
+      monacoEditor = monaco.editor.create(document.getElementById('monaco-editor-container'), {
+        value: '',
+        language: 'markdown',
+        theme: 'vs',
+        automaticLayout: true,
+        wordWrap: 'on',
+        lineNumbers: 'off',
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        fontSize: 16,
+        lineHeight: 24,
+        padding: { top: 20, bottom: 20 },
+        renderLineHighlight: 'none',
+        overviewRulerLanes: 0,
+        hideCursorInOverviewRuler: true,
+        overviewRulerBorder: false,
+        scrollbar: {
+          vertical: 'auto',
+          horizontal: 'auto'
+        }
+      });
 
-    // Setup auto-save on content change
-    monacoEditor.onDidChangeModelContent(() => {
-      scheduleAutoSave();
-    });
+      // Setup auto-save on content change
+      monacoEditor.onDidChangeModelContent(() => {
+        scheduleAutoSave();
+      });
+
+      monacoEditorReady = true;
+
+      // Load notes after Monaco is ready
+      loadNotes();
+    } catch (error) {
+      console.error('Error initializing Monaco Editor:', error);
+      alert('Failed to load the editor. Please refresh the page.');
+    }
+  }, function(err) {
+    console.error('Error loading Monaco Editor:', err);
+    alert('Failed to load the editor. Please check your internet connection and refresh the page.');
   });
 }
 
@@ -105,9 +127,17 @@ function setupEventListeners() {
     logoutBtn.addEventListener('click', logout);
   }
 
-  // Auto-save on input with debouncing (2 seconds after user stops typing)
+  // Auto-save on input with debouncing (1 second after user stops typing)
   noteTitle.addEventListener('input', () => {
     scheduleAutoSave();
+  });
+
+  // Event delegation for note items - prevents memory leaks
+  notesList.addEventListener('click', (e) => {
+    const noteItem = e.target.closest('.note-item');
+    if (noteItem && noteItem.dataset.id) {
+      loadNote(noteItem.dataset.id);
+    }
   });
 }
 
@@ -123,10 +153,10 @@ function scheduleAutoSave() {
   // Show "Unsaved changes" status
   updateSaveStatus('unsaved');
 
-  // Schedule save after 2 seconds of no typing
+  // Schedule save after 1 second of no typing
   autoSaveTimeout = setTimeout(() => {
     saveCurrentNote();
-  }, 2000);
+  }, 1000);
 }
 
 // Update save status indicator
@@ -278,25 +308,28 @@ function renderNotesList() {
       </div>
     `;
   }).join('');
-
-  // Add click listeners to note items
-  document.querySelectorAll('.note-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const noteId = item.dataset.id;
-      loadNote(noteId);
-    });
-  });
 }
 
 function loadNote(noteId) {
   const note = notes.find(n => n.id === noteId);
   if (!note) return;
 
+  // Don't load note if Monaco isn't ready yet
+  if (!monacoEditorReady || !monacoEditor) {
+    console.warn('Monaco editor not ready yet, deferring note load');
+    // Retry after a short delay
+    setTimeout(() => loadNote(noteId), 100);
+    return;
+  }
+
   currentNoteId = noteId;
   noteTitle.value = note.title;
 
-  if (monacoEditor) {
+  // Safely set the editor content
+  try {
     monacoEditor.setValue(note.content);
+  } catch (error) {
+    console.error('Error setting editor content:', error);
   }
 
   noNoteSelected.style.display = 'none';
@@ -317,7 +350,10 @@ async function createNewNote() {
 }
 
 async function saveCurrentNote() {
-  if (!currentNoteId || isSaving || !monacoEditor) return;
+  if (!currentNoteId || isSaving || !monacoEditor || !monacoEditorReady) return;
+
+  // Capture the note ID at the start - this won't change even if user switches notes
+  const noteIdToSave = currentNoteId;
 
   isSaving = true;
   updateSaveStatus('saving');
@@ -325,19 +361,27 @@ async function saveCurrentNote() {
   const title = noteTitle.value.trim() || 'Untitled';
   const content = monacoEditor.getValue();
 
-  const updatedNote = await updateNote(currentNoteId, title, content);
+  const updatedNote = await updateNote(noteIdToSave, title, content);
 
   if (updatedNote) {
-    const index = notes.findIndex(n => n.id === currentNoteId);
+    // Use the captured ID, not the global currentNoteId
+    const index = notes.findIndex(n => n.id === noteIdToSave);
     if (index !== -1) {
       notes[index] = updatedNote;
     }
 
-    updateLastSaved(updatedNote.updated_at);
-    updateSaveStatus('saved');
+    // Only update UI if we're still on the same note
+    if (currentNoteId === noteIdToSave) {
+      updateLastSaved(updatedNote.updated_at);
+      updateSaveStatus('saved');
+    }
+
     renderNotesList();
   } else {
-    updateSaveStatus('error');
+    // Only show error if we're still on the same note
+    if (currentNoteId === noteIdToSave) {
+      updateSaveStatus('error');
+    }
   }
 
   isSaving = false;
