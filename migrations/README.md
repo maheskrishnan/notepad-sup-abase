@@ -23,7 +23,11 @@ Run these migrations in order in your Supabase SQL Editor:
 ### 3. `003_add_soft_delete.sql`
 - Adds `is_deleted` boolean column for soft delete functionality
 - Sets default value to `FALSE` for all existing notes
-- No index created on `is_deleted` (filtered queries use existing `user_id` index)
+
+### 4. `004_add_soft_delete_index.sql`
+- Adds composite index for optimized soft delete queries
+- Covers the pattern: `WHERE user_id = ? AND is_deleted = ? ORDER BY updated_at DESC`
+- Significantly improves performance for listing active notes
 
 ## Usage
 

@@ -507,7 +507,9 @@ function loadNote(noteId, updateUrl = true) {
     console.error('Error setting editor content:', error);
   }
 
+  // Hide all other views and show editor
   noNoteSelected.style.display = 'none';
+  deletedNoteView.style.display = 'none';
   editor.style.display = 'flex';
 
   updateLastSaved(note.updated_at);
@@ -574,22 +576,23 @@ async function deleteCurrentNote() {
     return;
   }
 
+  // Store the note info before deleting for the recovery view
+  const deletedNote = notes.find(n => n.id === currentNoteId);
+  if (!deletedNote) return;
+
   const success = await deleteNote(currentNoteId);
   if (success) {
+    // Remove from notes array
     notes = notes.filter(n => n.id !== currentNoteId);
-    currentNoteId = null;
-
-    noNoteSelected.style.display = 'flex';
-    editor.style.display = 'none';
 
     renderNotesList();
 
-    // Clear URL when note is deleted
-    updateURL(null);
+    // Keep the URL as is (don't clear it) so user stays on the same page
+    // Show deleted note view with recovery option
+    showDeletedNoteView(deletedNote);
 
-    if (notes.length === 0) {
-      showEmptyState();
-    }
+    // Keep currentNoteId set so the URL stays the same
+    // It will be cleared when user recovers or navigates away
   }
 }
 
@@ -599,11 +602,11 @@ function showDeletedNoteView(note) {
   noNoteSelected.style.display = 'none';
   editor.style.display = 'none';
 
-  // Show deleted note view
+  // Show deleted note view with XSS protection (using textContent, not innerHTML)
   deletedNoteView.style.display = 'flex';
   deletedNoteTitle.textContent = note.title || 'Untitled';
 
-  // Store note ID for recovery
+  // Store note ID for recovery (safe - dataset attributes are automatically escaped)
   deletedNoteView.dataset.noteId = note.id;
 }
 
@@ -619,7 +622,15 @@ async function recoverDeletedNote() {
   const noteId = deletedNoteView.dataset.noteId;
   if (!noteId) {
     console.error('No note ID found for recovery');
+    alert('Cannot recover note: Note ID is missing');
     return;
+  }
+
+  // Disable button during recovery to prevent double-clicks
+  const recoverBtn = document.getElementById('recover-note-btn');
+  if (recoverBtn) {
+    recoverBtn.disabled = true;
+    recoverBtn.textContent = 'Recovering...';
   }
 
   try {
@@ -651,16 +662,28 @@ async function recoverDeletedNote() {
       alert('Note recovered successfully!');
     } else {
       alert(result.error || 'Failed to recover note');
+      // Re-enable button on error
+      if (recoverBtn) {
+        recoverBtn.disabled = false;
+        recoverBtn.textContent = 'Recover This Note';
+      }
     }
   } catch (error) {
     console.error('Error recovering note:', error);
     alert('Failed to recover note. Please try again.');
+    // Re-enable button on error
+    if (recoverBtn) {
+      recoverBtn.disabled = false;
+      recoverBtn.textContent = 'Recover This Note';
+    }
   }
 }
 
 function showEmptyState() {
+  // Hide all views except the empty state
   noNoteSelected.style.display = 'flex';
   editor.style.display = 'none';
+  deletedNoteView.style.display = 'none';
 }
 
 function updateLastSaved(timestamp) {

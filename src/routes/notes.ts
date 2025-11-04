@@ -53,6 +53,7 @@ router.get('/:id', validateUUID, async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, error: 'Note not found' });
     }
 
+    // Return is_deleted status to allow frontend to handle deleted notes appropriately
     res.json({ success: true, data });
   } catch (error) {
     console.error('Error fetching note:', error);
@@ -107,17 +108,21 @@ router.put('/:id', validateUUID, validateNote, async (req: AuthRequest, res: Res
     if (title !== undefined) updateData.title = title;
     if (content !== undefined) updateData.content = content;
 
+    // RLS policies ensure user can only update their own notes, but we add explicit check for defense in depth
+    // Also prevent updating deleted notes
     const { data, error } = await req.supabaseClient
       .from('notes')
       .update(updateData)
       .eq('id', id)
+      .eq('user_id', req.user.id)
+      .eq('is_deleted', false)
       .select()
       .single();
 
     if (error) throw error;
 
     if (!data) {
-      return res.status(404).json({ success: false, error: 'Note not found' });
+      return res.status(404).json({ success: false, error: 'Note not found or access denied' });
     }
 
     res.json({ success: true, data });
@@ -132,17 +137,21 @@ router.delete('/:id', validateUUID, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
+    // RLS policies ensure user can only delete their own notes, but we add explicit check for defense in depth
+    // Also prevent deleting already deleted notes
     const { data, error } = await req.supabaseClient
       .from('notes')
       .update({ is_deleted: true })
       .eq('id', id)
+      .eq('user_id', req.user.id)
+      .eq('is_deleted', false)
       .select()
       .single();
 
     if (error) throw error;
 
     if (!data) {
-      return res.status(404).json({ success: false, error: 'Note not found' });
+      return res.status(404).json({ success: false, error: 'Note not found or access denied' });
     }
 
     res.json({ success: true, message: 'Note deleted successfully' });
@@ -157,10 +166,12 @@ router.post('/:id/restore', validateUUID, async (req: AuthRequest, res: Response
   try {
     const { id } = req.params;
 
+    // RLS policies ensure user can only restore their own notes, but we add explicit check for defense in depth
     const { data, error } = await req.supabaseClient
       .from('notes')
       .update({ is_deleted: false })
       .eq('id', id)
+      .eq('user_id', req.user.id)
       .eq('is_deleted', true)
       .select()
       .single();
@@ -170,7 +181,7 @@ router.post('/:id/restore', validateUUID, async (req: AuthRequest, res: Response
     if (!data) {
       return res.status(404).json({
         success: false,
-        error: 'Note not found or already restored'
+        error: 'Note not found, already restored, or access denied'
       });
     }
 
