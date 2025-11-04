@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notepad</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="user-info">
+    <span id="user-email" class="user-email"></span>
+    <button id="logout-btn" class="btn-logout">Logout</button>
+  </div>
+
+  <div class="container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Notes</h1>
+        <button id="new-note-btn" class="btn btn-primary">+ New Note</button>
+      </div>
+      <div id="notes-list" class="notes-list">
+        <!-- Notes will be dynamically loaded here -->
+      </div>
+    </aside>
+
+    <main class="editor-container">
+      <div id="no-note-selected" class="no-note-selected">
+        <p>Select a note or create a new one to get started</p>
+      </div>
+
+      <div id="editor" class="editor" style="display: none;">
+        <div class="editor-header">
+          <input
+            type="text"
+            id="note-title"
+            class="note-title"
+            placeholder="Untitled"
+          >
+          <div class="editor-actions">
+            <span id="save-status" class="save-status"></span>
+            <button id="delete-btn" class="btn btn-danger">Delete</button>
+          </div>
+        </div>
+        <div id="monaco-editor-container" class="monaco-editor-container"></div>
+        <div class="editor-footer">
+          <span id="last-saved" class="last-saved"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
