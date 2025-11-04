@@ -322,6 +322,12 @@ function loadNote(noteId) {
     return;
   }
 
+  // Clear any pending auto-save when switching notes
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = null;
+  }
+
   currentNoteId = noteId;
   noteTitle.value = note.title;
 

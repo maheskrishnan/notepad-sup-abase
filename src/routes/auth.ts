@@ -1,19 +1,17 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../supabase';
+import { validateAuth } from '../middleware/validation';
+import { authRateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
+// Apply rate limiting to all auth routes
+router.use(authRateLimiter);
+
 // Sign up with email and password
-router.post('/signup', async (req: Request, res: Response) => {
+router.post('/signup', validateAuth, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email and password are required'
-      });
-    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -39,16 +37,9 @@ router.post('/signup', async (req: Request, res: Response) => {
 });
 
 // Sign in with email and password
-router.post('/signin', async (req: Request, res: Response) => {
+router.post('/signin', validateAuth, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email and password are required'
-      });
-    }
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email,

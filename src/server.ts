@@ -8,8 +8,48 @@ import authRouter from './routes/auth';
 const app = express();
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+// Configure CORS to only allow requests from your domain
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : ['http://localhost:3000', 'http://localhost:5173'], // Default for development
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' })); // Add size limit to prevent large payloads
+
+// Security headers middleware
+app.use((req, res, next) => {
+  // Content Security Policy - allows Monaco Editor from CDN
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-eval' https://cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+    "font-src 'self' https://cdnjs.cloudflare.com data:; " +
+    "connect-src 'self' https://*.supabase.co; " +
+    "img-src 'self' data: https:; " +
+    "worker-src 'self' blob:;"
+  );
+
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
+  // Prevent clickjacking
+  res.setHeader('X-Frame-Options', 'DENY');
+
+  // Control referrer information
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Force HTTPS in production
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+
+  next();
+});
+
 app.use(express.static(path.join(__dirname, '../public')));
 
 // API Routes

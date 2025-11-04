@@ -1,5 +1,7 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth';
+import { validateNote, validateUUID } from '../middleware/validation';
+import { apiRateLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -12,7 +14,8 @@ interface Note {
   updated_at: string;
 }
 
-// Apply authentication middleware to all routes
+// Apply rate limiting and authentication middleware to all routes
+router.use(apiRateLimiter);
 router.use(authenticate);
 
 // Get all notes for authenticated user
@@ -33,7 +36,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // Get a single note by ID
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', validateUUID, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { data, error } = await req.supabaseClient
@@ -56,7 +59,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // Create a new note
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', validateNote, async (req: AuthRequest, res: Response) => {
   try {
     const { title = 'Untitled', content = '' } = req.body;
 
@@ -80,16 +83,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: any) {
     console.error('Error creating note:', error);
+    // Only expose detailed errors in development
+    const errorMessage = process.env.NODE_ENV === 'production'
+      ? 'Failed to create note'
+      : error.message || 'Failed to create note';
+
     res.status(500).json({
       success: false,
-      error: error.message || 'Failed to create note',
-      details: error.details || error.hint || undefined
+      error: errorMessage
     });
   }
 });
 
 // Update a note
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', validateUUID, validateNote, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { title, content } = req.body;
@@ -119,7 +126,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // Delete a note
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', validateUUID, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
