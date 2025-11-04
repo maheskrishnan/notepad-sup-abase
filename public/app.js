@@ -7,6 +7,7 @@ let isSaving = false;
 let accessToken = null;
 let monacoEditor = null;
 let monacoEditorReady = false;
+let searchQuery = '';
 
 // DOM Elements
 const notesList = document.getElementById('notes-list');
@@ -19,6 +20,13 @@ const newNoteBtn = document.getElementById('new-note-btn');
 const lastSaved = document.getElementById('last-saved');
 const logoutBtn = document.getElementById('logout-btn');
 const userEmail = document.getElementById('user-email');
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const closeSettingsBtn = document.getElementById('close-settings');
+const changePasswordForm = document.getElementById('change-password-form');
+const changeEmailForm = document.getElementById('change-email-form');
+const searchInput = document.getElementById('search-input');
+const clearSearchBtn = document.getElementById('clear-search');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -139,6 +147,59 @@ function setupEventListeners() {
       loadNote(noteItem.dataset.id);
     }
   });
+
+  // Settings modal
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', openSettingsModal);
+  }
+  if (closeSettingsBtn) {
+    closeSettingsBtn.addEventListener('click', closeSettingsModal);
+  }
+  if (settingsModal) {
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        closeSettingsModal();
+      }
+    });
+  }
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', handlePasswordChange);
+  }
+  if (changeEmailForm) {
+    changeEmailForm.addEventListener('submit', handleEmailChange);
+  }
+
+  // Settings navigation tabs
+  document.querySelectorAll('.settings-nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      const button = e.currentTarget;
+      const tabName = button.dataset.tab;
+      switchSettingsTab(tabName);
+    });
+  });
+
+  // Search functionality
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase().trim();
+      renderNotesList();
+
+      // Show/hide clear button
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+      }
+    });
+  }
+
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      clearSearchBtn.style.display = 'none';
+      renderNotesList();
+      searchInput.focus();
+    });
+  }
 }
 
 // Schedule auto-save with debouncing
@@ -297,7 +358,23 @@ function renderNotesList() {
     return;
   }
 
-  notesList.innerHTML = notes.map(note => {
+  // Filter notes based on search query
+  let filteredNotes = notes;
+  if (searchQuery) {
+    filteredNotes = notes.filter(note => {
+      const titleMatch = note.title.toLowerCase().includes(searchQuery);
+      const contentMatch = note.content.toLowerCase().includes(searchQuery);
+      return titleMatch || contentMatch;
+    });
+  }
+
+  // Show message if no search results
+  if (filteredNotes.length === 0) {
+    notesList.innerHTML = '<div class="empty-state">No notes found matching your search.</div>';
+    return;
+  }
+
+  notesList.innerHTML = filteredNotes.map(note => {
     const preview = note.content.substring(0, 50) || 'No content';
     const date = new Date(note.updated_at).toLocaleDateString();
     return `
@@ -424,6 +501,197 @@ function showEmptyState() {
 function updateLastSaved(timestamp) {
   const date = new Date(timestamp);
   lastSaved.textContent = `Last saved: ${date.toLocaleString()}`;
+}
+
+// Settings Modal Functions
+function openSettingsModal() {
+  settingsModal.style.display = 'flex';
+  // Clear previous messages
+  document.getElementById('password-error').textContent = '';
+  document.getElementById('password-success').textContent = '';
+  document.getElementById('email-error').textContent = '';
+  document.getElementById('email-success').textContent = '';
+  // Clear form fields
+  changePasswordForm.reset();
+  changeEmailForm.reset();
+  // Reset to password tab
+  switchSettingsTab('password');
+}
+
+function closeSettingsModal() {
+  settingsModal.style.display = 'none';
+}
+
+function switchSettingsTab(tabName) {
+  // Remove active class from all nav items
+  document.querySelectorAll('.settings-nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+
+  // Add active class to clicked nav item
+  const activeNavItem = document.querySelector(`.settings-nav-item[data-tab="${tabName}"]`);
+  if (activeNavItem) {
+    activeNavItem.classList.add('active');
+  }
+
+  // Hide all tab content
+  document.querySelectorAll('.settings-section').forEach(section => {
+    section.style.display = 'none';
+    section.classList.remove('active');
+  });
+
+  // Show selected tab content
+  const activeTab = document.getElementById(`${tabName}-tab`);
+  if (activeTab) {
+    activeTab.style.display = 'block';
+    activeTab.classList.add('active');
+  }
+}
+
+async function handlePasswordChange(e) {
+  e.preventDefault();
+
+  const currentPassword = document.getElementById('current-password').value;
+  const newPassword = document.getElementById('new-password').value;
+  const confirmPassword = document.getElementById('confirm-password').value;
+  const errorEl = document.getElementById('password-error');
+  const successEl = document.getElementById('password-success');
+
+  // Clear previous messages
+  errorEl.textContent = '';
+  successEl.textContent = '';
+
+  // Validate current password
+  if (!currentPassword || currentPassword.trim() === '') {
+    errorEl.textContent = 'Current password is required';
+    return;
+  }
+
+  if (currentPassword.length > 128) {
+    errorEl.textContent = 'Current password is too long';
+    return;
+  }
+
+  // Validate new password length
+  if (newPassword.length < 6) {
+    errorEl.textContent = 'New password must be at least 6 characters';
+    return;
+  }
+
+  if (newPassword.length > 128) {
+    errorEl.textContent = 'New password must not exceed 128 characters';
+    return;
+  }
+
+  // Validate passwords match
+  if (newPassword !== confirmPassword) {
+    errorEl.textContent = 'New passwords do not match';
+    return;
+  }
+
+  // Check if new password is same as current
+  if (currentPassword === newPassword) {
+    errorEl.textContent = 'New password must be different from current password';
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/auth/password`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+
+    const result = await response.json();
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    if (!result.success) {
+      errorEl.textContent = result.error || 'Failed to change password';
+      return;
+    }
+
+    successEl.textContent = 'Password changed successfully!';
+    changePasswordForm.reset();
+  } catch (error) {
+    console.error('Error changing password:', error);
+    errorEl.textContent = 'Failed to change password. Please try again.';
+  }
+}
+
+async function handleEmailChange(e) {
+  e.preventDefault();
+
+  const newEmail = document.getElementById('new-email').value.trim().toLowerCase();
+  const confirmEmail = document.getElementById('confirm-email').value.trim().toLowerCase();
+  const errorEl = document.getElementById('email-error');
+  const successEl = document.getElementById('email-success');
+
+  // Clear previous messages
+  errorEl.textContent = '';
+  successEl.textContent = '';
+
+  // Validate email is not empty
+  if (!newEmail || newEmail === '') {
+    errorEl.textContent = 'Email is required';
+    return;
+  }
+
+  // Validate email length
+  if (newEmail.length < 3) {
+    errorEl.textContent = 'Email is too short';
+    return;
+  }
+
+  if (newEmail.length > 255) {
+    errorEl.textContent = 'Email must not exceed 255 characters';
+    return;
+  }
+
+  // Validate email format - use more strict regex matching backend
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  if (!emailRegex.test(newEmail)) {
+    errorEl.textContent = 'Invalid email format';
+    return;
+  }
+
+  // Validate emails match
+  if (newEmail !== confirmEmail) {
+    errorEl.textContent = 'Email addresses do not match';
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/auth/email`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ newEmail })
+    });
+
+    const result = await response.json();
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    if (!result.success) {
+      errorEl.textContent = result.error || 'Failed to change email';
+      return;
+    }
+
+    successEl.textContent = result.message || 'Verification email sent. Please check your inbox.';
+    changeEmailForm.reset();
+
+    // Note: The email won't actually change until user clicks verification link in their inbox
+    // The displayed email in the UI will remain unchanged until verification is complete
+  } catch (error) {
+    console.error('Error changing email:', error);
+    errorEl.textContent = 'Failed to change email. Please try again.';
+  }
 }
 
 function escapeHtml(text) {

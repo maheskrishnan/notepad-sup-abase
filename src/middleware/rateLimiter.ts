@@ -64,6 +64,14 @@ export const authRateLimiter = createRateLimiter({
   message: 'Too many login attempts, please try again later'
 });
 
+// Stricter rate limiter for password change attempts
+// This prevents brute-force attacks on the current password verification
+export const passwordChangeRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Only 3 password change attempts per window
+  message: 'Too many password change attempts. Please try again later.'
+});
+
 export const apiRateLimiter = createRateLimiter({
   windowMs: 60 * 1000, // 1 minute
   max: 100, // 100 requests per minute

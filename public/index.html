@@ -13,12 +13,20 @@
         <h1>Notes</h1>
         <button id="new-note-btn" class="btn btn-primary">+ New Note</button>
       </div>
+      <div class="search-bar-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Search notes...">
+        <span class="search-icon">🔍</span>
+        <button id="clear-search" class="clear-search" style="display: none;">&times;</button>
+      </div>
       <div id="notes-list" class="notes-list">
         <!-- Notes will be dynamically loaded here -->
       </div>
       <div class="sidebar-footer">
         <span id="user-email" class="user-email"></span>
-        <button id="logout-btn" class="btn-logout">Logout</button>
+        <div class="sidebar-footer-buttons">
+          <button id="settings-btn" class="btn-settings">Settings</button>
+          <button id="logout-btn" class="btn-logout">Logout</button>
+        </div>
       </div>
     </aside>
 
@@ -46,6 +54,74 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Account Settings</h2>
+        <button id="close-settings" class="close-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Left Navigation -->
+        <nav class="settings-nav">
+          <button class="settings-nav-item active" data-tab="password">
+            <span class="nav-icon">🔒</span>
+            <span class="nav-label">Change Password</span>
+          </button>
+          <button class="settings-nav-item" data-tab="email">
+            <span class="nav-icon">✉️</span>
+            <span class="nav-label">Change Email</span>
+          </button>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="settings-content">
+          <!-- Change Password Section -->
+          <div id="password-tab" class="settings-section active">
+            <h3>Change Password</h3>
+            <form id="change-password-form" class="settings-form">
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" class="form-input" maxlength="128" required autocomplete="current-password">
+              </div>
+              <div class="form-group">
+                <label for="new-password">New Password (min 6 characters)</label>
+                <input type="password" id="new-password" class="form-input" minlength="6" maxlength="128" required autocomplete="new-password">
+              </div>
+              <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" class="form-input" minlength="6" maxlength="128" required autocomplete="new-password">
+              </div>
+              <div id="password-error" class="error-message"></div>
+              <div id="password-success" class="success-message"></div>
+              <button type="submit" class="btn btn-primary btn-block">Change Password</button>
+            </form>
+          </div>
+
+          <!-- Change Email Section -->
+          <div id="email-tab" class="settings-section" style="display: none;">
+            <h3>Change Email</h3>
+            <form id="change-email-form" class="settings-form">
+              <div class="form-group">
+                <label for="new-email">New Email</label>
+                <input type="email" id="new-email" class="form-input" maxlength="255" required autocomplete="email">
+              </div>
+              <div class="form-group">
+                <label for="confirm-email">Confirm New Email</label>
+                <input type="email" id="confirm-email" class="form-input" maxlength="255" required autocomplete="email">
+              </div>
+              <p class="info-message">A verification email will be sent to your new email address. Your email will not change until you click the verification link.</p>
+              <div id="email-error" class="error-message"></div>
+              <div id="email-success" class="success-message"></div>
+              <button type="submit" class="btn btn-primary btn-block">Change Email</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
