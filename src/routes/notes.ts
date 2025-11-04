@@ -12,18 +12,20 @@ interface Note {
   content: string;
   created_at: string;
   updated_at: string;
+  is_deleted: boolean;
 }
 
 // Apply rate limiting and authentication middleware to all routes
 router.use(apiRateLimiter);
 router.use(authenticate);
 
-// Get all notes for authenticated user
+// Get all notes for authenticated user (excluding deleted notes)
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { data, error } = await req.supabaseClient
       .from('notes')
       .select('*')
+      .eq('is_deleted', false)
       .order('updated_at', { ascending: false });
 
     if (error) throw error;
@@ -125,22 +127,61 @@ router.put('/:id', validateUUID, validateNote, async (req: AuthRequest, res: Res
   }
 });
 
-// Delete a note
+// Delete a note (soft delete)
 router.delete('/:id', validateUUID, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const { error } = await req.supabaseClient
+    const { data, error } = await req.supabaseClient
       .from('notes')
-      .delete()
-      .eq('id', id);
+      .update({ is_deleted: true })
+      .eq('id', id)
+      .select()
+      .single();
 
     if (error) throw error;
+
+    if (!data) {
+      return res.status(404).json({ success: false, error: 'Note not found' });
+    }
 
     res.json({ success: true, message: 'Note deleted successfully' });
   } catch (error) {
     console.error('Error deleting note:', error);
     res.status(500).json({ success: false, error: 'Failed to delete note' });
+  }
+});
+
+// Restore a deleted note
+router.post('/:id/restore', validateUUID, async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const { data, error } = await req.supabaseClient
+      .from('notes')
+      .update({ is_deleted: false })
+      .eq('id', id)
+      .eq('is_deleted', true)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res.status(404).json({
+        success: false,
+        error: 'Note not found or already restored'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Note restored successfully',
+      data
+    });
+  } catch (error) {
+    console.error('Error restoring note:', error);
+    res.status(500).json({ success: false, error: 'Failed to restore note' });
   }
 });
 

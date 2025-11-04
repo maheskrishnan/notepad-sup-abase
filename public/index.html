@@ -35,6 +35,18 @@
         <p>Select a note or create a new one to get started</p>
       </div>
 
+      <div id="deleted-note-view" class="deleted-note-view" style="display: none;">
+        <div class="deleted-note-message">
+          <h2>This note has been deleted</h2>
+          <p>Note title: <strong id="deleted-note-title"></strong></p>
+          <p>You can recover this note or view all your notes.</p>
+          <div class="deleted-note-actions">
+            <button id="recover-note-btn" class="btn btn-success">Recover This Note</button>
+            <button id="view-all-notes-btn" class="btn btn-primary">View All Notes</button>
+          </div>
+        </div>
+      </div>
+
       <div id="editor" class="editor" style="display: none;">
         <div class="editor-header">
           <input

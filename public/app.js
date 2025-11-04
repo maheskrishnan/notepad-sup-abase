@@ -27,6 +27,10 @@ const changePasswordForm = document.getElementById('change-password-form');
 const changeEmailForm = document.getElementById('change-email-form');
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search');
+const deletedNoteView = document.getElementById('deleted-note-view');
+const deletedNoteTitle = document.getElementById('deleted-note-title');
+const recoverNoteBtn = document.getElementById('recover-note-btn');
+const viewAllNotesBtn = document.getElementById('view-all-notes-btn');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -35,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   initializeMonacoEditor();
   setupEventListeners();
+});
+
+// Handle browser back/forward buttons
+window.addEventListener('hashchange', () => {
+  loadNoteFromURL();
 });
 
 // Cleanup Monaco Editor on page unload to prevent memory leaks
@@ -200,6 +209,86 @@ function setupEventListeners() {
       searchInput.focus();
     });
   }
+
+  // Deleted note recovery buttons
+  if (recoverNoteBtn) {
+    recoverNoteBtn.addEventListener('click', recoverDeletedNote);
+  }
+  if (viewAllNotesBtn) {
+    viewAllNotesBtn.addEventListener('click', () => {
+      hideDeletedNoteView();
+      updateURL(null);
+    });
+  }
+}
+
+// URL / Deeplinking Functions
+function updateURL(noteId) {
+  if (noteId) {
+    window.history.pushState(null, '', `#note/${noteId}`);
+  } else {
+    window.history.pushState(null, '', '#');
+  }
+}
+
+async function loadNoteFromURL() {
+  const hash = window.location.hash;
+
+  // No hash or just '#' - don't load any note
+  if (!hash || hash === '#') {
+    return;
+  }
+
+  // Parse hash format: #note/{noteId}
+  const noteMatch = hash.match(/^#note\/(.+)$/);
+  if (noteMatch && noteMatch[1]) {
+    const noteId = noteMatch[1];
+
+    // Check if note exists in loaded notes (active notes only)
+    const note = notes.find(n => n.id === noteId);
+    if (note) {
+      // Only load if not already the current note (prevents unnecessary reloads)
+      if (currentNoteId !== noteId) {
+        loadNote(noteId, false); // false = don't update URL (already in URL)
+      }
+    } else {
+      // Note not in active list - fetch from server to check if it's deleted
+      try {
+        const response = await fetch(`${API_BASE}/notes/${noteId}`, {
+          headers: getAuthHeaders()
+        });
+
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+
+        if (response.status === 404) {
+          // Note doesn't exist at all - clear the hash
+          console.warn('Note not found:', noteId);
+          window.history.replaceState(null, '', '#');
+          return;
+        }
+
+        const result = await response.json();
+        if (result.success && result.data) {
+          const fetchedNote = result.data;
+
+          // Check if note is deleted
+          if (fetchedNote.is_deleted) {
+            showDeletedNoteView(fetchedNote);
+          } else {
+            // Note exists but not in our list (shouldn't happen normally)
+            console.warn('Note exists but not in local list:', noteId);
+            window.history.replaceState(null, '', '#');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching note:', error);
+        window.history.replaceState(null, '', '#');
+      }
+    }
+  }
 }
 
 // Schedule auto-save with debouncing
@@ -349,6 +438,9 @@ async function loadNotes() {
 
   if (notes.length === 0) {
     showEmptyState();
+  } else {
+    // Try to load note from URL hash if present
+    loadNoteFromURL();
   }
 }
 
@@ -387,7 +479,7 @@ function renderNotesList() {
   }).join('');
 }
 
-function loadNote(noteId) {
+function loadNote(noteId, updateUrl = true) {
   const note = notes.find(n => n.id === noteId);
   if (!note) return;
 
@@ -395,7 +487,7 @@ function loadNote(noteId) {
   if (!monacoEditorReady || !monacoEditor) {
     console.warn('Monaco editor not ready yet, deferring note load');
     // Retry after a short delay
-    setTimeout(() => loadNote(noteId), 100);
+    setTimeout(() => loadNote(noteId, updateUrl), 100);
     return;
   }
 
@@ -421,6 +513,11 @@ function loadNote(noteId) {
   updateLastSaved(note.updated_at);
   updateSaveStatus('saved');
   renderNotesList();
+
+  // Update URL to reflect current note
+  if (updateUrl) {
+    updateURL(noteId);
+  }
 }
 
 async function createNewNote() {
@@ -487,9 +584,77 @@ async function deleteCurrentNote() {
 
     renderNotesList();
 
+    // Clear URL when note is deleted
+    updateURL(null);
+
     if (notes.length === 0) {
       showEmptyState();
     }
+  }
+}
+
+// Deleted Note Functions
+function showDeletedNoteView(note) {
+  // Hide other views
+  noNoteSelected.style.display = 'none';
+  editor.style.display = 'none';
+
+  // Show deleted note view
+  deletedNoteView.style.display = 'flex';
+  deletedNoteTitle.textContent = note.title || 'Untitled';
+
+  // Store note ID for recovery
+  deletedNoteView.dataset.noteId = note.id;
+}
+
+function hideDeletedNoteView() {
+  deletedNoteView.style.display = 'none';
+  delete deletedNoteView.dataset.noteId;
+
+  // Show empty state
+  showEmptyState();
+}
+
+async function recoverDeletedNote() {
+  const noteId = deletedNoteView.dataset.noteId;
+  if (!noteId) {
+    console.error('No note ID found for recovery');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/notes/${noteId}/restore`, {
+      method: 'POST',
+      headers: getAuthHeaders()
+    });
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      // Add recovered note back to notes array
+      notes.unshift(result.data);
+
+      // Hide deleted view and load the recovered note
+      deletedNoteView.style.display = 'none';
+      delete deletedNoteView.dataset.noteId;
+
+      // Refresh the notes list and load the recovered note
+      renderNotesList();
+      loadNote(noteId);
+
+      // Show success message briefly
+      alert('Note recovered successfully!');
+    } else {
+      alert(result.error || 'Failed to recover note');
+    }
+  } catch (error) {
+    console.error('Error recovering note:', error);
+    alert('Failed to recover note. Please try again.');
   }
 }
 
