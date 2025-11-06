@@ -29,6 +29,12 @@ Run these migrations in order in your Supabase SQL Editor:
 - Covers the pattern: `WHERE user_id = ? AND is_deleted = ? ORDER BY updated_at DESC`
 - Significantly improves performance for listing active notes
 
+### 5. `005_create_note_versions.sql`
+- Creates `note_versions` table for storing versioned snapshots of notes
+- Users can save versions with annotations (like v0, v1, v2, etc.)
+- Includes RLS policies for secure access
+- Adds indexes for fast lookups
+
 ## Usage
 
 To apply a migration:

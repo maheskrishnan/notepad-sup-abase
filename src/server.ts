@@ -4,6 +4,7 @@ import path from 'path';
 import { CONFIG } from './config';
 import notesRouter from './routes/notes';
 import authRouter from './routes/auth';
+import versionsRouter from './routes/versions';
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // API Routes
 app.use('/api/auth', authRouter);
 app.use('/api/notes', notesRouter);
+app.use('/api/versions', versionsRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

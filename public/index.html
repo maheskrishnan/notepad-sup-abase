@@ -48,22 +48,48 @@
       </div>
 
       <div id="editor" class="editor" style="display: none;">
-        <div class="editor-header">
-          <input
-            type="text"
-            id="note-title"
-            class="note-title"
-            placeholder="Untitled"
-          >
-          <div class="editor-actions">
-            <span id="save-status" class="save-status"></span>
-            <button id="delete-btn" class="btn btn-danger">Delete</button>
+        <div class="editor-main">
+          <div class="editor-header">
+            <input
+              type="text"
+              id="note-title"
+              class="note-title"
+              placeholder="Untitled"
+            >
+            <div class="editor-actions">
+              <span id="save-status" class="save-status"></span>
+              <button id="save-version-btn" class="btn btn-secondary" title="Save a new version of this note">💾 Save Version</button>
+              <button id="toggle-panel-btn" class="btn btn-secondary" title="Toggle sidebar panel">☰</button>
+              <button id="delete-btn" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+          <div id="monaco-editor-container" class="monaco-editor-container"></div>
+          <div class="editor-footer">
+            <span id="last-saved" class="last-saved"></span>
           </div>
         </div>
-        <div id="monaco-editor-container" class="monaco-editor-container"></div>
-        <div class="editor-footer">
-          <span id="last-saved" class="last-saved"></span>
-        </div>
+
+        <aside id="side-panel" class="side-panel hidden">
+          <div class="panel-header">
+            <div class="panel-tabs">
+              <button class="panel-tab active" data-tab="versions">Versions</button>
+              <button class="panel-tab" data-tab="toc">Table of Contents</button>
+            </div>
+            <button id="close-panel-btn" class="close-panel-btn">&times;</button>
+          </div>
+
+          <div id="versions-tab-content" class="tab-content active">
+            <div id="versions-list" class="versions-list">
+              <p class="versions-empty">No versions yet. Click "💾 Save Version" to create one.</p>
+            </div>
+          </div>
+
+          <div id="toc-tab-content" class="tab-content">
+            <div id="toc-list" class="toc-list">
+              <p class="toc-empty">No headers found. Add headers using # syntax.</p>
+            </div>
+          </div>
+        </aside>
       </div>
     </main>
   </div>

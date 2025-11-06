@@ -170,6 +170,7 @@ body {
   display: flex;
   flex-direction: column;
   background-color: white;
+  overflow: hidden;
 }
 
 .no-note-selected {
@@ -184,7 +185,17 @@ body {
 .editor {
   flex: 1;
   display: flex;
+  flex-direction: row;
+  position: relative;
+  overflow: hidden;
+}
+
+.editor-main {
+  flex: 1;
+  display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .editor-header {
@@ -245,10 +256,16 @@ body {
   background-color: #f8d7da;
 }
 
+.save-status.viewing-version {
+  color: #856404;
+  background-color: #fff3cd;
+  font-weight: 600;
+}
+
 /* Monaco Editor Container */
 .monaco-editor-container {
   flex: 1;
-  width: 100%;
+  min-width: 0;
   height: 100%;
   overflow: hidden;
 }
@@ -755,5 +772,309 @@ body {
 
   .settings-content {
     padding: 20px;
+  }
+}
+
+/* Side Panel */
+.side-panel {
+  width: 300px;
+  min-width: 300px;
+  flex-shrink: 0;
+  background-color: #f9f9f9;
+  border-left: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.side-panel.hidden {
+  display: none;
+}
+
+.panel-header {
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 0;
+}
+
+.panel-tabs {
+  display: flex;
+  flex: 1;
+  gap: 0;
+}
+
+.panel-tab {
+  flex: 1;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.panel-tab:hover {
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+.panel-tab.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+  background-color: #f9f9f9;
+}
+
+.close-panel-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.close-panel-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content:not(.active) {
+  display: none;
+}
+
+.versions-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.versions-empty {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 30px 20px;
+  line-height: 1.6;
+}
+
+.version-item {
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.version-item:hover {
+  background-color: #f0f7ff;
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.version-item:active {
+  transform: scale(0.98);
+}
+
+.version-item.current {
+  border-color: #28a745;
+  background-color: #f0fff4;
+}
+
+.version-number {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #007bff;
+  background-color: #e7f3ff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+
+.version-item.current .version-number {
+  color: #28a745;
+  background-color: #d4edda;
+}
+
+.version-annotation {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+  word-wrap: break-word;
+  margin-bottom: 4px;
+}
+
+.version-timestamp {
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
+}
+
+.version-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: none;
+}
+
+.version-item:hover .version-actions {
+  display: block;
+}
+
+.version-delete-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.version-delete-btn:hover {
+  background-color: #f8d7da;
+}
+
+/* Table of Contents Styles */
+.toc-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.toc-empty {
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+  padding: 30px 20px;
+  line-height: 1.6;
+}
+
+.toc-item {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background-color: #fff;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  word-wrap: break-word;
+}
+
+.toc-item:hover {
+  background-color: #f0f7ff;
+  border-left-color: #007bff;
+}
+
+.toc-item.level-1 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  padding-left: 12px;
+}
+
+.toc-item.level-2 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  padding-left: 24px;
+}
+
+.toc-item.level-3 {
+  font-size: 13px;
+  font-weight: 400;
+  color: #666;
+  padding-left: 36px;
+}
+
+.toc-item.level-4 {
+  font-size: 12px;
+  font-weight: 400;
+  color: #777;
+  padding-left: 48px;
+}
+
+.toc-item.level-5,
+.toc-item.level-6 {
+  font-size: 12px;
+  font-weight: 400;
+  color: #888;
+  padding-left: 60px;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
+/* Responsive adjustments for side panel */
+@media (max-width: 1200px) {
+  .side-panel {
+    width: 250px;
+  }
+}
+
+@media (max-width: 992px) {
+  .side-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Monaco Editor Checkpoint Highlight Animation */
+.checkpoint-highlight {
+  background-color: rgba(255, 235, 59, 0.3) !important;
+  animation: checkpoint-fade 2s ease-out;
+}
+
+@keyframes checkpoint-fade {
+  0% {
+    background-color: rgba(255, 235, 59, 0.6);
+  }
+  100% {
+    background-color: rgba(255, 235, 59, 0);
   }
 }

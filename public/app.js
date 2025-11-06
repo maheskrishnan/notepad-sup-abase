@@ -3,6 +3,7 @@ const API_BASE = '/api';
 let notes = [];
 let currentNoteId = null;
 let autoSaveTimeout = null;
+let tocUpdateTimeout = null;
 let isSaving = false;
 let accessToken = null;
 let monacoEditor = null;
@@ -31,6 +32,15 @@ const deletedNoteView = document.getElementById('deleted-note-view');
 const deletedNoteTitle = document.getElementById('deleted-note-title');
 const recoverNoteBtn = document.getElementById('recover-note-btn');
 const viewAllNotesBtn = document.getElementById('view-all-notes-btn');
+const saveVersionBtn = document.getElementById('save-version-btn');
+const togglePanelBtn = document.getElementById('toggle-panel-btn');
+const closePanelBtn = document.getElementById('close-panel-btn');
+const sidePanel = document.getElementById('side-panel');
+const versionsList = document.getElementById('versions-list');
+const tocList = document.getElementById('toc-list');
+
+let currentVersionId = null; // Track if we're viewing a past version
+let noteVersions = []; // Store versions for current note
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -98,12 +108,65 @@ function initializeMonacoEditor() {
         scrollbar: {
           vertical: 'auto',
           horizontal: 'auto'
+        },
+        // Disable IntelliSense/autocomplete
+        wordBasedSuggestions: false,
+        quickSuggestions: false,
+        suggestOnTriggerCharacters: false,
+        acceptSuggestionOnEnter: 'off'
+      });
+
+      // Register simple word completion provider
+      monaco.languages.registerCompletionItemProvider('markdown', {
+        provideCompletionItems: (model, position) => {
+          // Get the word being typed
+          const word = model.getWordUntilPosition(position);
+          const range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn
+          };
+
+          // Only show suggestions if user has typed at least 2 characters
+          if (word.word.length < 2) {
+            return { suggestions: [] };
+          }
+
+          // Extract all words from the document
+          const text = model.getValue();
+          const words = text.match(/\b[a-zA-Z]{2,}\b/g) || [];
+
+          // Get unique words, filter out the current word, and sort by frequency
+          const wordFreq = {};
+          words.forEach(w => {
+            const lower = w.toLowerCase();
+            if (lower !== word.word.toLowerCase()) {
+              wordFreq[w] = (wordFreq[w] || 0) + 1;
+            }
+          });
+
+          // Create suggestions from unique words
+          const uniqueWords = Object.keys(wordFreq);
+          const suggestions = uniqueWords
+            .filter(w => w.toLowerCase().startsWith(word.word.toLowerCase()))
+            .sort((a, b) => wordFreq[b] - wordFreq[a]) // Sort by frequency
+            .slice(0, 20) // Limit to 20 suggestions
+            .map(w => ({
+              label: w,
+              kind: monaco.languages.CompletionItemKind.Text,
+              insertText: w,
+              range: range
+            }));
+
+          return { suggestions };
         }
       });
 
       // Setup auto-save on content change
       monacoEditor.onDidChangeModelContent(() => {
         scheduleAutoSave();
+        scheduleTOCUpdate();
       });
 
       monacoEditorReady = true;
@@ -220,6 +283,27 @@ function setupEventListeners() {
       updateURL(null);
     });
   }
+
+  // Version and panel buttons
+  if (saveVersionBtn) {
+    saveVersionBtn.addEventListener('click', createVersion);
+  }
+  if (togglePanelBtn) {
+    togglePanelBtn.addEventListener('click', toggleSidePanel);
+  }
+  if (closePanelBtn) {
+    closePanelBtn.addEventListener('click', () => {
+      sidePanel.classList.add('hidden');
+    });
+  }
+
+  // Panel tab switching
+  document.querySelectorAll('.panel-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const tabName = e.currentTarget.dataset.tab;
+      switchPanelTab(tabName);
+    });
+  });
 }
 
 // URL / Deeplinking Functions
@@ -307,6 +391,21 @@ function scheduleAutoSave() {
   autoSaveTimeout = setTimeout(() => {
     saveCurrentNote();
   }, 1000);
+}
+
+// Schedule TOC update with debouncing
+function scheduleTOCUpdate() {
+  if (!currentNoteId) return;
+
+  // Clear existing timeout
+  if (tocUpdateTimeout) {
+    clearTimeout(tocUpdateTimeout);
+  }
+
+  // Update TOC after 500ms of no typing (faster than save for responsiveness)
+  tocUpdateTimeout = setTimeout(() => {
+    updateTableOfContents();
+  }, 500);
 }
 
 // Update save status indicator
@@ -507,6 +606,10 @@ function loadNote(noteId, updateUrl = true) {
     console.error('Error setting editor content:', error);
   }
 
+  // Re-enable editing (in case we were viewing a past version)
+  monacoEditor.updateOptions({ readOnly: false });
+  noteTitle.readOnly = false;
+
   // Hide all other views and show editor
   noNoteSelected.style.display = 'none';
   deletedNoteView.style.display = 'none';
@@ -515,6 +618,13 @@ function loadNote(noteId, updateUrl = true) {
   updateLastSaved(note.updated_at);
   updateSaveStatus('saved');
   renderNotesList();
+
+  // Reset version view state
+  currentVersionId = null;
+
+  // Load versions and update TOC
+  loadVersions(noteId);
+  updateTableOfContents();
 
   // Update URL to reflect current note
   if (updateUrl) {
@@ -886,4 +996,306 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+// Version Functions
+async function createVersion() {
+  if (!currentNoteId || currentVersionId) {
+    alert('Cannot save a version while viewing a past version');
+    return;
+  }
+
+  const annotation = prompt('Enter version annotation (describe this version):');
+  if (!annotation || annotation.trim().length === 0) return;
+
+  if (annotation.length > 500) {
+    alert('Annotation must not exceed 500 characters');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/versions/note/${currentNoteId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ annotation: annotation.trim() })
+    });
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert(`${result.message}`);
+      loadVersions(currentNoteId);
+      sidePanel.classList.remove('hidden');
+      // Switch to versions tab
+      switchPanelTab('versions');
+    } else {
+      alert(result.error || 'Failed to create version');
+    }
+  } catch (error) {
+    console.error('Error creating version:', error);
+    alert('Failed to create version. Please try again.');
+  }
+}
+
+async function loadVersions(noteId) {
+  try {
+    const response = await fetch(`${API_BASE}/versions/note/${noteId}`, {
+      headers: getAuthHeaders()
+    });
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      noteVersions = result.data || [];
+      updateVersionsList();
+    }
+  } catch (error) {
+    console.error('Error loading versions:', error);
+  }
+}
+
+function updateVersionsList() {
+  if (noteVersions.length === 0) {
+    versionsList.innerHTML = '<p class="versions-empty">No versions yet. Click "💾 Save Version" to create one.</p>';
+    return;
+  }
+
+  const html = noteVersions.map(version => {
+    const date = new Date(version.created_at).toLocaleString();
+    const isCurrent = !currentVersionId; // Current version when not viewing a past one
+    const isThisVersion = currentVersionId === version.id;
+
+    return `
+      <div class="version-item ${(isCurrent && noteVersions.indexOf(version) === 0) || isThisVersion ? 'current' : ''}"
+           data-version-id="${version.id}">
+        <div class="version-number">v${version.version_number}</div>
+        <div class="version-annotation">${escapeHtml(version.annotation)}</div>
+        <div class="version-timestamp">${date}</div>
+        <div class="version-actions">
+          <button class="version-delete-btn" data-version-id="${version.id}" title="Delete this version">×</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  versionsList.innerHTML = html;
+
+  // Add click handlers to view versions
+  versionsList.querySelectorAll('.version-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      // Don't trigger if clicking delete button
+      if (e.target.classList.contains('version-delete-btn')) return;
+
+      const versionId = item.dataset.versionId;
+      viewVersion(versionId);
+    });
+  });
+
+  // Add delete handlers
+  versionsList.querySelectorAll('.version-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const versionId = btn.dataset.versionId;
+      await deleteVersion(versionId);
+    });
+  });
+}
+
+async function viewVersion(versionId) {
+  try {
+    const response = await fetch(`${API_BASE}/versions/${versionId}`, {
+      headers: getAuthHeaders()
+    });
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (result.success && result.data) {
+      const version = result.data;
+
+      // Set the version content in the editor
+      noteTitle.value = version.title;
+      monacoEditor.setValue(version.content);
+
+      // Mark as viewing a past version
+      currentVersionId = versionId;
+
+      // Update save status to indicate viewing old version
+      updateSaveStatus('viewing-version');
+      saveStatus.textContent = `Viewing v${version.version_number}`;
+      saveStatus.className = 'save-status viewing-version';
+
+      // Disable editing
+      monacoEditor.updateOptions({ readOnly: true });
+      noteTitle.readOnly = true;
+
+      // Update versions list to highlight current
+      updateVersionsList();
+      updateTableOfContents();
+    }
+  } catch (error) {
+    console.error('Error viewing version:', error);
+    alert('Failed to load version');
+  }
+}
+
+async function deleteVersion(versionId) {
+  if (!confirm('Are you sure you want to delete this version?')) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/versions/${versionId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+
+    if (response.status === 401) {
+      logout();
+      return;
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      loadVersions(currentNoteId);
+    } else {
+      alert(result.error || 'Failed to delete version');
+    }
+  } catch (error) {
+    console.error('Error deleting version:', error);
+    alert('Failed to delete version');
+  }
+}
+
+function toggleSidePanel() {
+  sidePanel.classList.toggle('hidden');
+
+  // Update content when opening
+  if (!sidePanel.classList.contains('hidden')) {
+    updateVersionsList();
+    updateTableOfContents();
+  }
+}
+
+function switchPanelTab(tabName) {
+  // Update tab buttons
+  document.querySelectorAll('.panel-tab').forEach(tab => {
+    if (tab.dataset.tab === tabName) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+
+  // Update tab content
+  if (tabName === 'versions') {
+    document.getElementById('versions-tab-content').classList.add('active');
+    document.getElementById('toc-tab-content').classList.remove('active');
+    updateVersionsList();
+  } else if (tabName === 'toc') {
+    document.getElementById('versions-tab-content').classList.remove('active');
+    document.getElementById('toc-tab-content').classList.add('active');
+    updateTableOfContents();
+  }
+}
+
+function parseTableOfContents() {
+  if (!monacoEditor || !monacoEditorReady) return [];
+
+  const content = monacoEditor.getValue();
+  const lines = content.split('\n');
+  const headers = [];
+
+  // Regex to match markdown headers: # Header, ## Header, etc.
+  const headerRegex = /^(#{1,6})\s+(.+)$/;
+
+  lines.forEach((line, index) => {
+    const match = line.match(headerRegex);
+    if (match) {
+      const level = match[1].length; // Number of # symbols
+      const text = match[2].trim();
+      headers.push({
+        lineNumber: index + 1,
+        level: level,
+        text: text
+      });
+    }
+  });
+
+  return headers;
+}
+
+function updateTableOfContents() {
+  console.log('updateTableOfContents called');
+  console.log('tocList element:', tocList);
+
+  if (!monacoEditor || !monacoEditorReady) {
+    console.log('Monaco not ready');
+    return;
+  }
+
+  const headers = parseTableOfContents();
+  console.log('Headers found:', headers);
+
+  if (headers.length === 0) {
+    tocList.innerHTML = '<p class="toc-empty">No headers found. Add headers using # syntax.</p>';
+    console.log('No headers, showing empty state');
+    return;
+  }
+
+  // Create TOC items
+  const html = headers.map(header => `
+    <div class="toc-item level-${header.level}" data-line="${header.lineNumber}">
+      ${escapeHtml(header.text)}
+    </div>
+  `).join('');
+
+  console.log('Generated HTML:', html);
+  tocList.innerHTML = html;
+
+  // Add click handlers to navigate to headers
+  tocList.querySelectorAll('.toc-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const lineNumber = parseInt(item.dataset.line);
+      navigateToLine(lineNumber);
+    });
+  });
+}
+
+function navigateToLine(lineNumber) {
+  if (!monacoEditor || !monacoEditorReady) return;
+
+  // Scroll to the line and highlight it
+  monacoEditor.revealLineInCenter(lineNumber);
+  monacoEditor.setPosition({ lineNumber, column: 1 });
+  monacoEditor.focus();
+
+  // Highlight the line briefly
+  const decorations = monacoEditor.deltaDecorations([], [
+    {
+      range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+      options: {
+        isWholeLine: true,
+        className: 'checkpoint-highlight'
+      }
+    }
+  ]);
+
+  // Remove highlight after 2 seconds
+  setTimeout(() => {
+    monacoEditor.deltaDecorations(decorations, []);
+  }, 2000);
 }

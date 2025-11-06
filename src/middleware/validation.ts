@@ -109,6 +109,21 @@ export function validateUUID(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// Validate UUID format for noteId parameter
+export function validateNoteId(req: Request, res: Response, next: NextFunction) {
+  const { noteId } = req.params;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!uuidRegex.test(noteId)) {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid note ID format'
+    });
+  }
+
+  next();
+}
+
 // Validate password change
 export function validatePasswordChange(req: Request, res: Response, next: NextFunction) {
   const errors: ValidationError[] = [];
