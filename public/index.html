@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Notepad</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
 </head>
 <body>
   <div class="container">
@@ -58,12 +59,19 @@
             >
             <div class="editor-actions">
               <span id="save-status" class="save-status"></span>
+                <div class="mode-toggle-container">
+                    <div class="mode-toggle">
+                        <button id="edit-mode-btn" class="mode-toggle-btn active">Edit</button>
+                        <button id="preview-mode-btn" class="mode-toggle-btn">Preview</button>
+                    </div>
+                </div>
               <button id="save-version-btn" class="btn btn-secondary" title="Save a new version of this note">💾 Save Version</button>
               <button id="toggle-panel-btn" class="btn btn-secondary" title="Toggle sidebar panel">☰</button>
               <button id="delete-btn" class="btn btn-danger">Delete</button>
             </div>
           </div>
           <div id="monaco-editor-container" class="monaco-editor-container"></div>
+          <div id="preview-container" class="preview-container" style="display: none;"></div>
           <div class="editor-footer">
             <span id="last-saved" class="last-saved"></span>
           </div>
@@ -105,7 +113,11 @@
       <div class="modal-body">
         <!-- Left Navigation -->
         <nav class="settings-nav">
-          <button class="settings-nav-item active" data-tab="password">
+          <button class="settings-nav-item active" data-tab="theme">
+            <span class="nav-icon">🎨</span>
+            <span class="nav-label">Theme</span>
+          </button>
+          <button class="settings-nav-item" data-tab="password">
             <span class="nav-icon">🔒</span>
             <span class="nav-label">Change Password</span>
           </button>
@@ -117,8 +129,71 @@
 
         <!-- Content Area -->
         <div class="settings-content">
+          <!-- Theme Section -->
+          <div id="theme-tab" class="settings-section active">
+            <h3>Choose Your Theme</h3>
+            <p class="theme-description">Select a color theme that suits your style</p>
+            <div class="theme-grid">
+              <div class="theme-option" data-theme="default">
+                <div class="theme-preview theme-preview-default">
+                  <div class="theme-preview-sidebar"></div>
+                  <div class="theme-preview-main">
+                    <div class="theme-preview-header"></div>
+                    <div class="theme-preview-content"></div>
+                  </div>
+                </div>
+                <div class="theme-info">
+                  <h4>Default</h4>
+                  <p>Clean and classic</p>
+                </div>
+              </div>
+
+              <div class="theme-option" data-theme="dark">
+                <div class="theme-preview theme-preview-dark">
+                  <div class="theme-preview-sidebar"></div>
+                  <div class="theme-preview-main">
+                    <div class="theme-preview-header"></div>
+                    <div class="theme-preview-content"></div>
+                  </div>
+                </div>
+                <div class="theme-info">
+                  <h4>Dark</h4>
+                  <p>Easy on the eyes</p>
+                </div>
+              </div>
+
+              <div class="theme-option" data-theme="ocean">
+                <div class="theme-preview theme-preview-ocean">
+                  <div class="theme-preview-sidebar"></div>
+                  <div class="theme-preview-main">
+                    <div class="theme-preview-header"></div>
+                    <div class="theme-preview-content"></div>
+                  </div>
+                </div>
+                <div class="theme-info">
+                  <h4>Ocean</h4>
+                  <p>Cool and calm</p>
+                </div>
+              </div>
+
+              <div class="theme-option" data-theme="forest">
+                <div class="theme-preview theme-preview-forest">
+                  <div class="theme-preview-sidebar"></div>
+                  <div class="theme-preview-main">
+                    <div class="theme-preview-header"></div>
+                    <div class="theme-preview-content"></div>
+                  </div>
+                </div>
+                <div class="theme-info">
+                  <h4>Forest</h4>
+                  <p>Natural and fresh</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Change Password Section -->
-          <div id="password-tab" class="settings-section active">
+          <div id="password-tab" class="settings-section" style="display: none;">
             <h3>Change Password</h3>
             <form id="change-password-form" class="settings-form">
               <div class="form-group">

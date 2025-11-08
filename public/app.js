@@ -38,15 +38,21 @@ const closePanelBtn = document.getElementById('close-panel-btn');
 const sidePanel = document.getElementById('side-panel');
 const versionsList = document.getElementById('versions-list');
 const tocList = document.getElementById('toc-list');
+const editModeBtn = document.getElementById('edit-mode-btn');
+const previewModeBtn = document.getElementById('preview-mode-btn');
+const monacoEditorContainer = document.getElementById('monaco-editor-container');
+const previewContainer = document.getElementById('preview-container');
 
 let currentVersionId = null; // Track if we're viewing a past version
 let noteVersions = []; // Store versions for current note
+let currentMode = 'edit'; // Track current mode: 'edit' or 'preview'
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   if (!checkAuth()) {
     return;
   }
+  loadTheme();
   initializeMonacoEditor();
   setupEventListeners();
 });
@@ -114,53 +120,6 @@ function initializeMonacoEditor() {
         quickSuggestions: false,
         suggestOnTriggerCharacters: false,
         acceptSuggestionOnEnter: 'off'
-      });
-
-      // Register simple word completion provider
-      monaco.languages.registerCompletionItemProvider('markdown', {
-        provideCompletionItems: (model, position) => {
-          // Get the word being typed
-          const word = model.getWordUntilPosition(position);
-          const range = {
-            startLineNumber: position.lineNumber,
-            endLineNumber: position.lineNumber,
-            startColumn: word.startColumn,
-            endColumn: word.endColumn
-          };
-
-          // Only show suggestions if user has typed at least 2 characters
-          if (word.word.length < 2) {
-            return { suggestions: [] };
-          }
-
-          // Extract all words from the document
-          const text = model.getValue();
-          const words = text.match(/\b[a-zA-Z]{2,}\b/g) || [];
-
-          // Get unique words, filter out the current word, and sort by frequency
-          const wordFreq = {};
-          words.forEach(w => {
-            const lower = w.toLowerCase();
-            if (lower !== word.word.toLowerCase()) {
-              wordFreq[w] = (wordFreq[w] || 0) + 1;
-            }
-          });
-
-          // Create suggestions from unique words
-          const uniqueWords = Object.keys(wordFreq);
-          const suggestions = uniqueWords
-            .filter(w => w.toLowerCase().startsWith(word.word.toLowerCase()))
-            .sort((a, b) => wordFreq[b] - wordFreq[a]) // Sort by frequency
-            .slice(0, 20) // Limit to 20 suggestions
-            .map(w => ({
-              label: w,
-              kind: monaco.languages.CompletionItemKind.Text,
-              insertText: w,
-              range: range
-            }));
-
-          return { suggestions };
-        }
       });
 
       // Setup auto-save on content change
@@ -302,6 +261,22 @@ function setupEventListeners() {
     tab.addEventListener('click', (e) => {
       const tabName = e.currentTarget.dataset.tab;
       switchPanelTab(tabName);
+    });
+  });
+
+  // Mode toggle (Edit/Preview)
+  if (editModeBtn) {
+    editModeBtn.addEventListener('click', () => switchMode('edit'));
+  }
+  if (previewModeBtn) {
+    previewModeBtn.addEventListener('click', () => switchMode('preview'));
+  }
+
+  // Theme selection
+  document.querySelectorAll('.theme-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+      const theme = e.currentTarget.dataset.theme;
+      setTheme(theme);
     });
   });
 }
@@ -566,13 +541,11 @@ function renderNotesList() {
   }
 
   notesList.innerHTML = filteredNotes.map(note => {
-    const preview = note.content.substring(0, 50) || 'No content';
-    const date = new Date(note.updated_at).toLocaleDateString();
+    const relativeTime = getRelativeTime(note.updated_at);
     return `
       <div class="note-item ${note.id === currentNoteId ? 'active' : ''}" data-id="${note.id}">
         <div class="note-item-title">${escapeHtml(note.title)}</div>
-        <div class="note-item-preview">${escapeHtml(preview)}</div>
-        <div class="note-item-date">${date}</div>
+        <div class="note-item-date">${relativeTime}</div>
       </div>
     `;
   }).join('');
@@ -622,9 +595,16 @@ function loadNote(noteId, updateUrl = true) {
   // Reset version view state
   currentVersionId = null;
 
+  // Reset to edit mode when loading a note
+  switchMode('edit');
+
   // Load versions and update TOC
   loadVersions(noteId);
   updateTableOfContents();
+
+  // Show side panel with TOC tab by default
+  sidePanel.classList.remove('hidden');
+  switchPanelTab('toc');
 
   // Update URL to reflect current note
   if (updateUrl) {
@@ -998,6 +978,35 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+function getRelativeTime(timestamp) {
+  const now = new Date();
+  const past = new Date(timestamp);
+  const diffMs = now - past;
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+
+  if (diffSecs < 60) {
+    return 'just now';
+  } else if (diffMins < 60) {
+    return diffMins === 1 ? '1 minute ago' : `${diffMins} minutes ago`;
+  } else if (diffHours < 24) {
+    return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+  } else if (diffDays < 7) {
+    return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
+  } else if (diffWeeks < 4) {
+    return diffWeeks === 1 ? '1 week ago' : `${diffWeeks} weeks ago`;
+  } else if (diffMonths < 12) {
+    return diffMonths === 1 ? '1 month ago' : `${diffMonths} months ago`;
+  } else {
+    return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
+  }
+}
+
 // Version Functions
 async function createVersion() {
   if (!currentNoteId || currentVersionId) {
@@ -1143,6 +1152,9 @@ async function viewVersion(versionId) {
       monacoEditor.updateOptions({ readOnly: true });
       noteTitle.readOnly = true;
 
+      // Switch to edit mode to show the read-only version content
+      switchMode('edit');
+
       // Update versions list to highlight current
       updateVersionsList();
       updateTableOfContents();
@@ -1239,20 +1251,14 @@ function parseTableOfContents() {
 }
 
 function updateTableOfContents() {
-  console.log('updateTableOfContents called');
-  console.log('tocList element:', tocList);
-
   if (!monacoEditor || !monacoEditorReady) {
-    console.log('Monaco not ready');
     return;
   }
 
   const headers = parseTableOfContents();
-  console.log('Headers found:', headers);
 
   if (headers.length === 0) {
     tocList.innerHTML = '<p class="toc-empty">No headers found. Add headers using # syntax.</p>';
-    console.log('No headers, showing empty state');
     return;
   }
 
@@ -1263,7 +1269,6 @@ function updateTableOfContents() {
     </div>
   `).join('');
 
-  console.log('Generated HTML:', html);
   tocList.innerHTML = html;
 
   // Add click handlers to navigate to headers
@@ -1298,4 +1303,91 @@ function navigateToLine(lineNumber) {
   setTimeout(() => {
     monacoEditor.deltaDecorations(decorations, []);
   }, 2000);
+}
+
+// Mode Switching Functions
+function switchMode(mode) {
+  if (currentMode === mode) return;
+
+  currentMode = mode;
+
+  // Update button active states
+  if (mode === 'edit') {
+    editModeBtn.classList.add('active');
+    previewModeBtn.classList.remove('active');
+    monacoEditorContainer.style.display = 'block';
+    previewContainer.style.display = 'none';
+  } else {
+    editModeBtn.classList.remove('active');
+    previewModeBtn.classList.add('active');
+    monacoEditorContainer.style.display = 'none';
+    previewContainer.style.display = 'block';
+
+    renderPreview();
+  }
+}
+
+function renderPreview() {
+  if (!monacoEditor || !monacoEditorReady) {
+    return;
+  }
+
+  const markdown = monacoEditor.getValue();
+
+  try {
+    // If content is empty, show a message
+    if (!markdown.trim()) {
+      previewContainer.innerHTML = '<p style="color: #999; padding: 20px; text-align: center;">No content to preview. Start typing in edit mode!</p>';
+      return;
+    }
+
+    // Check if marked library is loaded
+    if (typeof marked === 'undefined') {
+      previewContainer.innerHTML = '<p style="color: red; padding: 20px;">Markdown library not loaded. Please refresh the page.</p>';
+      console.error('marked library not available');
+      return;
+    }
+
+    // Configure marked for GitHub-style markdown
+    marked.setOptions({
+      breaks: true,
+      gfm: true
+    });
+
+    // Parse markdown to HTML using marked library
+    const html = marked.parse(markdown);
+    previewContainer.innerHTML = html;
+  } catch (error) {
+    console.error('Error rendering preview:', error);
+    previewContainer.innerHTML = '<p style="color: red; padding: 20px;">Error rendering preview: ' + error.message + '</p>';
+  }
+}
+
+// Theme Functions
+function loadTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'default';
+  setTheme(savedTheme);
+}
+
+function setTheme(theme) {
+  // Update document attribute
+  document.documentElement.setAttribute('data-theme', theme);
+
+  // Save to localStorage
+  localStorage.setItem('theme', theme);
+
+  // Update active state in theme selector
+  document.querySelectorAll('.theme-option').forEach(option => {
+    if (option.dataset.theme === theme) {
+      option.classList.add('active');
+    } else {
+      option.classList.remove('active');
+    }
+  });
+
+  // Update Monaco Editor theme
+  if (monacoEditor && monacoEditorReady) {
+    const monacoTheme = theme === 'dark' ? 'vs-dark' : 'vs';
+    monaco.editor.setTheme(monacoTheme);
+  }
 }
