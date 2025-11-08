@@ -1262,9 +1262,9 @@ function updateTableOfContents() {
     return;
   }
 
-  // Create TOC items
+  // Create TOC items with header text for preview navigation
   const html = headers.map(header => `
-    <div class="toc-item level-${header.level}" data-line="${header.lineNumber}">
+    <div class="toc-item level-${header.level}" data-line="${header.lineNumber}" data-header-text="${escapeHtml(header.text)}">
       ${escapeHtml(header.text)}
     </div>
   `).join('');
@@ -1275,9 +1275,44 @@ function updateTableOfContents() {
   tocList.querySelectorAll('.toc-item').forEach(item => {
     item.addEventListener('click', () => {
       const lineNumber = parseInt(item.dataset.line);
-      navigateToLine(lineNumber);
+      const headerText = item.dataset.headerText;
+      navigateToHeader(lineNumber, headerText);
     });
   });
+}
+
+function navigateToHeader(lineNumber, headerText) {
+  // Check current mode and navigate accordingly
+  if (currentMode === 'preview') {
+    navigateToHeaderInPreview(headerText);
+  } else {
+    navigateToLine(lineNumber);
+  }
+}
+
+function navigateToHeaderInPreview(headerText) {
+  if (!previewContainer) return;
+
+  // Find all heading elements in the preview
+  const headings = previewContainer.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Find the heading that matches the text
+  for (const heading of headings) {
+    if (heading.textContent.trim() === headerText) {
+      // Scroll to the heading with smooth behavior
+      heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Add a temporary highlight effect
+      heading.style.backgroundColor = 'rgba(255, 235, 59, 0.3)';
+      heading.style.transition = 'background-color 2s ease-out';
+
+      setTimeout(() => {
+        heading.style.backgroundColor = 'transparent';
+      }, 2000);
+
+      break;
+    }
+  }
 }
 
 function navigateToLine(lineNumber) {
