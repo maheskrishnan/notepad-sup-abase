@@ -1,0 +1,22 @@
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-primary: #1a1d23;
+  --bg-secondary: #22262e;
+  --bg-tertiary: #2a2f38;
+  --bg-hover: #323842;
+  --text-primary: #e4e7eb;
+  --text-secondary: #b8bfc8;
+  --text-tertiary: #7d8694;
+  --border-color: #363b46;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+  --success-bg: #1e3a28;
+  --success-text: #4ade80;
+  --warning-bg: #3d3022;
+  --warning-text: #fbbf24;
+  --error-bg: #3d2426;
+  --error-text: #f87171;
+  --sidebar-bg: #22262e;
+  --editor-bg: #1a1d23;
+  --preview-bg: #1a1d23;
+}

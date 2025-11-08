@@ -1,0 +1,22 @@
+/* Facebook Theme */
+[data-theme="facebook"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f0f2f5;
+  --bg-tertiary: #e4e6eb;
+  --bg-hover: #e7f3ff;
+  --text-primary: #050505;
+  --text-secondary: #65676b;
+  --text-tertiary: #8a8d91;
+  --border-color: #ced0d4;
+  --accent-color: #1877f2;
+  --accent-hover: #166fe5;
+  --success-bg: #d4edda;
+  --success-text: #1e7e34;
+  --warning-bg: #fff3cd;
+  --warning-text: #856404;
+  --error-bg: #f8d7da;
+  --error-text: #721c24;
+  --sidebar-bg: #f0f2f5;
+  --editor-bg: #ffffff;
+  --preview-bg: #ffffff;
+}

@@ -1,0 +1,22 @@
+/* Forest Theme */
+[data-theme="forest"] {
+  --bg-primary: #fafdfb;
+  --bg-secondary: #f1f8f3;
+  --bg-tertiary: #e6f4ea;
+  --bg-hover: #d8eddf;
+  --text-primary: #1a3d2a;
+  --text-secondary: #3d6b52;
+  --text-tertiary: #7a9d8b;
+  --border-color: #d0e8d9;
+  --accent-color: #0d7f3f;
+  --accent-hover: #0a5e2f;
+  --success-bg: #d1fae5;
+  --success-text: #059669;
+  --warning-bg: #fef3c7;
+  --warning-text: #d97706;
+  --error-bg: #fee2e2;
+  --error-text: #dc2626;
+  --sidebar-bg: #f1f8f3;
+  --editor-bg: #fafdfb;
+  --preview-bg: #fafdfb;
+}

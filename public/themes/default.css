@@ -1,0 +1,23 @@
+/* Default Theme - Inspired by reference design */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --bg-tertiary: #f5f7fa;
+  --bg-hover: rgba(74, 111, 165, 0.08);
+  --text-primary: #2c3e50;
+  --text-secondary: #5a6c7d;
+  --text-tertiary: #9ca3af;
+  --border-color: #dfe3e8;
+  --accent-color: #4a6fa5;
+  --accent-hover: #3a5a8a;
+  --accent-light: #e8f0ff;
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --warning-bg: #fff3cd;
+  --warning-text: #856404;
+  --error-bg: #f8d7da;
+  --error-text: #721c24;
+  --sidebar-bg: #f5f7fa;
+  --editor-bg: #ffffff;
+  --preview-bg: #ffffff;
+}

@@ -1,0 +1,22 @@
+/* Ocean Theme */
+[data-theme="ocean"] {
+  --bg-primary: #fafcfe;
+  --bg-secondary: #f0f6fc;
+  --bg-tertiary: #e6f1f9;
+  --bg-hover: #d8ebf5;
+  --text-primary: #0c2d48;
+  --text-secondary: #2e5c7f;
+  --text-tertiary: #7c9fb5;
+  --border-color: #cfe3f0;
+  --accent-color: #0969da;
+  --accent-hover: #0550ae;
+  --success-bg: #d1fae5;
+  --success-text: #059669;
+  --warning-bg: #fef3c7;
+  --warning-text: #d97706;
+  --error-bg: #fee2e2;
+  --error-text: #dc2626;
+  --sidebar-bg: #f0f6fc;
+  --editor-bg: #fafcfe;
+  --preview-bg: #fafcfe;
+}

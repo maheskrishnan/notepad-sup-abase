@@ -1,102 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Theme Variables */
+/* Common Variables */
 :root {
-  /* Default Theme - Inspired by reference design */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f7fa;
-  --bg-tertiary: #f5f7fa;
-  --bg-hover: rgba(74, 111, 165, 0.08);
-  --text-primary: #2c3e50;
-  --text-secondary: #5a6c7d;
-  --text-tertiary: #9ca3af;
-  --border-color: #dfe3e8;
-  --accent-color: #4a6fa5;
-  --accent-hover: #3a5a8a;
-  --accent-light: #e8f0ff;
-  --success-bg: #d4edda;
-  --success-text: #155724;
-  --warning-bg: #fff3cd;
-  --warning-text: #856404;
-  --error-bg: #f8d7da;
-  --error-text: #721c24;
-  --sidebar-bg: #f5f7fa;
-  --editor-bg: #ffffff;
-  --preview-bg: #ffffff;
-}
-
-[data-theme="dark"] {
-  --bg-primary: #1a1d23;
-  --bg-secondary: #22262e;
-  --bg-tertiary: #2a2f38;
-  --bg-hover: #323842;
-  --text-primary: #e4e7eb;
-  --text-secondary: #b8bfc8;
-  --text-tertiary: #7d8694;
-  --border-color: #363b46;
-  --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
-  --success-bg: #1e3a28;
-  --success-text: #4ade80;
-  --warning-bg: #3d3022;
-  --warning-text: #fbbf24;
-  --error-bg: #3d2426;
-  --error-text: #f87171;
-  --sidebar-bg: #22262e;
-  --editor-bg: #1a1d23;
-  --preview-bg: #1a1d23;
-}
-
-[data-theme="ocean"] {
-  --bg-primary: #fafcfe;
-  --bg-secondary: #f0f6fc;
-  --bg-tertiary: #e6f1f9;
-  --bg-hover: #d8ebf5;
-  --text-primary: #0c2d48;
-  --text-secondary: #2e5c7f;
-  --text-tertiary: #7c9fb5;
-  --border-color: #cfe3f0;
-  --accent-color: #0969da;
-  --accent-hover: #0550ae;
-  --success-bg: #d1fae5;
-  --success-text: #059669;
-  --warning-bg: #fef3c7;
-  --warning-text: #d97706;
-  --error-bg: #fee2e2;
-  --error-text: #dc2626;
-  --sidebar-bg: #f0f6fc;
-  --editor-bg: #fafcfe;
-  --preview-bg: #fafcfe;
-}
-
-[data-theme="forest"] {
-  --bg-primary: #fafdfb;
-  --bg-secondary: #f1f8f3;
-  --bg-tertiary: #e6f4ea;
-  --bg-hover: #d8eddf;
-  --text-primary: #1a3d2a;
-  --text-secondary: #3d6b52;
-  --text-tertiary: #7a9d8b;
-  --border-color: #d0e8d9;
-  --accent-color: #0d7f3f;
-  --accent-hover: #0a5e2f;
-  --success-bg: #d1fae5;
-  --success-text: #059669;
-  --warning-bg: #fef3c7;
-  --warning-text: #d97706;
-  --error-bg: #fee2e2;
-  --error-text: #dc2626;
-  --sidebar-bg: #f1f8f3;
-  --editor-bg: #fafdfb;
-  --preview-bg: #fafdfb;
+  /* Typography scale */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-size-xs: 12px;
+  --font-size-sm: 13.5px;
+  --font-size-base: 15px;
+  --font-size-md: 17px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 30px;
+  --line-height-tight: 1.25;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.65;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  font-weight: var(--font-weight-regular);
   height: 100vh;
   overflow: hidden;
   display: flex;
@@ -130,17 +65,19 @@ body {
 }
 
 .sidebar-header h1 {
-  font-size: 20px;
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-tight);
   margin: 0;
   color: var(--text-primary);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 #new-note-btn {
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   white-space: nowrap;
   width: auto;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Search Bar */
@@ -156,7 +93,8 @@ body {
   padding: 6px 32px 6px 32px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-sans);
   outline: none;
   transition: all 0.2s;
   background-color: white;
@@ -176,7 +114,7 @@ body {
   left: 30px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 16px;
+  font-size: var(--font-size-md);
   color: var(--text-tertiary);
   pointer-events: none;
 }
@@ -188,7 +126,7 @@ body {
   transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   color: var(--text-tertiary);
   cursor: pointer;
   padding: 0;
@@ -228,8 +166,9 @@ body {
 }
 
 .note-item-title {
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-tight);
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -237,7 +176,8 @@ body {
 }
 
 .note-item-preview {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
   color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -249,10 +189,10 @@ body {
 }
 
 .note-item-date {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin-top: 3px;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .note-item.active .note-item-date {
@@ -274,7 +214,8 @@ body {
   align-items: center;
   justify-content: center;
   color: #999;
-  font-size: 18px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
 }
 
 .editor {
@@ -303,8 +244,9 @@ body {
 
 .note-title {
   flex: 1;
-  font-size: 24px;
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-semibold);
   border: none;
   outline: none;
   padding: 8px;
@@ -341,8 +283,8 @@ body {
   border: none;
   background: transparent;
   color: #6c757d;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   border-radius: 16px;
   transition: all 0.2s;
@@ -361,8 +303,8 @@ body {
 
 /* Save status indicator */
 .save-status {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   padding: 6px 12px;
   border-radius: 4px;
   transition: all 0.3s;
@@ -410,9 +352,9 @@ body {
   overflow-y: auto;
   padding: 40px;
   background-color: #fff;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-primary);
 }
 
 .preview-container h1,
@@ -423,37 +365,37 @@ body {
 .preview-container h6 {
   margin-top: 24px;
   margin-bottom: 16px;
-  font-weight: 600;
-  line-height: 1.25;
-  color: #1a1a1a;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--text-primary);
 }
 
 .preview-container h1 {
-  font-size: 2em;
+  font-size: var(--font-size-2xl);
   padding-bottom: 0.3em;
   border-bottom: 1px solid #eaecef;
 }
 
 .preview-container h2 {
-  font-size: 1.5em;
+  font-size: var(--font-size-xl);
   padding-bottom: 0.3em;
   border-bottom: 1px solid #eaecef;
 }
 
 .preview-container h3 {
-  font-size: 1.25em;
+  font-size: var(--font-size-lg);
 }
 
 .preview-container h4 {
-  font-size: 1em;
+  font-size: var(--font-size-md);
 }
 
 .preview-container h5 {
-  font-size: 0.875em;
+  font-size: var(--font-size-base);
 }
 
 .preview-container h6 {
-  font-size: 0.85em;
+  font-size: var(--font-size-sm);
   color: #6a737d;
 }
 
@@ -474,17 +416,17 @@ body {
 .preview-container code {
   padding: 0.2em 0.4em;
   margin: 0;
-  font-size: 85%;
+  font-size: calc(var(--font-size-base) * 0.9);
   background-color: rgba(27, 31, 35, 0.05);
   border-radius: 3px;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: var(--font-family-mono);
 }
 
 .preview-container pre {
   padding: 16px;
   overflow: auto;
-  font-size: 85%;
-  line-height: 1.45;
+  font-size: calc(var(--font-size-base) * 0.9);
+  line-height: var(--line-height-base);
   background-color: #f6f8fa;
   border-radius: 6px;
   margin-bottom: 16px;
@@ -567,7 +509,7 @@ body {
   padding: 10px 20px;
   border-top: 1px solid #ddd;
   background-color: #f9f9f9;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: #666;
 }
 
@@ -577,8 +519,9 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-sans);
   transition: all 0.2s;
 }
 
@@ -661,8 +604,8 @@ body {
 }
 
 .auth-title {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
   text-align: center;
   margin-bottom: 10px;
   color: #333;
@@ -672,7 +615,7 @@ body {
   text-align: center;
   color: #666;
   margin-bottom: 30px;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
 }
 
 .auth-tabs {
@@ -689,8 +632,8 @@ body {
   border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #999;
   transition: all 0.3s;
   margin-bottom: -2px;
@@ -718,8 +661,8 @@ body {
 }
 
 .form-group label {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: #333;
 }
 
@@ -727,9 +670,9 @@ body {
   padding: 12px 16px;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: var(--font-size-base);
   transition: all 0.3s;
-  font-family: inherit;
+  font-family: var(--font-family-sans);
 }
 
 .form-input:focus {
@@ -741,13 +684,13 @@ body {
 .btn-block {
   width: 100%;
   padding: 14px;
-  font-size: 16px;
+  font-size: var(--font-size-md);
   margin-top: 10px;
 }
 
 .error-message {
   color: #dc3545;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   padding: 12px;
   background-color: #f8d7da;
   border-radius: 6px;
@@ -760,7 +703,7 @@ body {
 
 .success-message {
   color: #28a745;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   padding: 12px;
   background-color: #d4edda;
   border-radius: 6px;
@@ -782,7 +725,7 @@ body {
 }
 
 .user-email {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: #666;
   word-break: break-word;
   margin-bottom: 0;
@@ -797,7 +740,7 @@ body {
 .btn-logout {
   flex: 1;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: white;
   border: none;
   border-radius: 4px;
@@ -858,14 +801,14 @@ body {
 
 .modal-header h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   color: #333;
 }
 
 .close-modal {
   background: none;
   border: none;
-  font-size: 32px;
+  font-size: var(--font-size-2xl);
   color: #999;
   cursor: pointer;
   padding: 0;
@@ -910,8 +853,8 @@ body {
   transition: all 0.2s;
   text-align: left;
   color: #666;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
 }
 
 .settings-nav-item:hover {
@@ -926,7 +869,7 @@ body {
 }
 
 .settings-nav-item .nav-icon {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
@@ -951,9 +894,9 @@ body {
 
 .settings-section h3 {
   margin: 0 0 25px 0;
-  font-size: 20px;
+  font-size: var(--font-size-lg);
   color: #333;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .settings-form {
@@ -963,7 +906,7 @@ body {
 }
 
 .info-message {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: #666;
   background-color: #e7f3ff;
   padding: 10px 12px;
@@ -993,14 +936,14 @@ body {
 .deleted-note-message h2 {
   color: #dc3545;
   margin-bottom: 20px;
-  font-size: 28px;
+  font-size: var(--font-size-2xl);
 }
 
 .deleted-note-message p {
   color: #666;
-  font-size: 16px;
+  font-size: var(--font-size-md);
   margin-bottom: 15px;
-  line-height: 1.6;
+  line-height: var(--line-height-relaxed);
 }
 
 .deleted-note-message p strong {
@@ -1056,11 +999,11 @@ body {
   }
 
   .settings-nav-item .nav-icon {
-    font-size: 20px;
+    font-size: var(--font-size-lg);
   }
 
   .settings-nav-item .nav-label {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .settings-content {
@@ -1105,8 +1048,8 @@ body {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: #666;
   cursor: pointer;
   transition: all 0.2s;
@@ -1127,7 +1070,7 @@ body {
 .close-panel-btn {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   color: #999;
   cursor: pointer;
   padding: 12px;
@@ -1166,7 +1109,7 @@ body {
 .versions-empty {
   text-align: center;
   color: #999;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   padding: 30px 20px;
   line-height: 1.6;
 }
@@ -1199,8 +1142,8 @@ body {
 
 .version-number {
   display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
   color: #007bff;
   background-color: #e7f3ff;
   padding: 3px 10px;
@@ -1214,7 +1157,7 @@ body {
 }
 
 .version-annotation {
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   color: #333;
   line-height: 1.4;
   word-wrap: break-word;
@@ -1222,7 +1165,7 @@ body {
 }
 
 .version-timestamp {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: #999;
   margin-top: 4px;
 }
@@ -1243,7 +1186,7 @@ body {
   border: none;
   color: #dc3545;
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size-md);
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s;
@@ -1263,7 +1206,7 @@ body {
 .toc-empty {
   text-align: center;
   color: #999;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   padding: 30px 20px;
   line-height: 1.6;
 }
@@ -1284,37 +1227,37 @@ body {
 }
 
 .toc-item.level-1 {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: #333;
   padding-left: 12px;
 }
 
 .toc-item.level-2 {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: #555;
   padding-left: 24px;
 }
 
 .toc-item.level-3 {
-  font-size: 13px;
-  font-weight: 400;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
   color: #666;
   padding-left: 36px;
 }
 
 .toc-item.level-4 {
-  font-size: 12px;
-  font-weight: 400;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
   color: #777;
   padding-left: 48px;
 }
 
 .toc-item.level-5,
 .toc-item.level-6 {
-  font-size: 12px;
-  font-weight: 400;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
   color: #888;
   padding-left: 60px;
 }
@@ -1326,8 +1269,8 @@ body {
   padding: 8px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   transition: all 0.2s;
 }
 
@@ -1376,7 +1319,7 @@ body {
 .theme-description {
   color: var(--text-secondary);
   margin-bottom: 24px;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
 }
 
 .theme-grid {
@@ -1488,14 +1431,40 @@ body {
   background-color: #f1f8f4;
 }
 
+/* Facebook Theme Preview */
+.theme-preview-facebook .theme-preview-sidebar {
+  background-color: #f0f2f5;
+}
+
+.theme-preview-facebook .theme-preview-header {
+  background-color: #ffffff;
+}
+
+.theme-preview-facebook .theme-preview-content {
+  background-color: #ffffff;
+}
+
+/* Yahoo Theme Preview */
+.theme-preview-yahoo .theme-preview-sidebar {
+  background-color: #f5f0ff;
+}
+
+.theme-preview-yahoo .theme-preview-header {
+  background-color: #ffffff;
+}
+
+.theme-preview-yahoo .theme-preview-content {
+  background-color: #ffffff;
+}
+
 .theme-info h4 {
-  font-size: 16px;
+  font-size: var(--font-size-md);
   margin-bottom: 4px;
   color: var(--text-primary);
 }
 
 .theme-info p {
-  font-size: 13px;
+  font-size: var(--font-size-sm);
   color: var(--text-secondary);
   margin: 0;
 }
