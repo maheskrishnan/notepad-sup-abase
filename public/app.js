@@ -42,10 +42,14 @@ const editModeBtn = document.getElementById('edit-mode-btn');
 const previewModeBtn = document.getElementById('preview-mode-btn');
 const monacoEditorContainer = document.getElementById('monaco-editor-container');
 const previewContainer = document.getElementById('preview-container');
+const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+const showSidebarBtn = document.getElementById('show-sidebar-btn');
+const sidebar = document.querySelector('.sidebar');
 
 let currentVersionId = null; // Track if we're viewing a past version
 let noteVersions = []; // Store versions for current note
 let currentMode = 'edit'; // Track current mode: 'edit' or 'preview'
+let sidebarCollapsed = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -270,6 +274,14 @@ function setupEventListeners() {
   }
   if (previewModeBtn) {
     previewModeBtn.addEventListener('click', () => switchMode('preview'));
+  }
+
+  // Sidebar toggle
+  if (toggleSidebarBtn) {
+    toggleSidebarBtn.addEventListener('click', toggleSidebar);
+  }
+  if (showSidebarBtn) {
+    showSidebarBtn.addEventListener('click', showSidebar);
   }
 
   // Theme selection
@@ -1200,6 +1212,25 @@ function toggleSidePanel() {
     updateVersionsList();
     updateTableOfContents();
   }
+}
+
+// Sidebar Toggle Functions
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+
+  if (sidebarCollapsed) {
+    sidebar.classList.add('collapsed');
+    showSidebarBtn.style.display = 'flex';
+  } else {
+    sidebar.classList.remove('collapsed');
+    showSidebarBtn.style.display = 'none';
+  }
+}
+
+function showSidebar() {
+  sidebarCollapsed = false;
+  sidebar.classList.remove('collapsed');
+  showSidebarBtn.style.display = 'none';
 }
 
 function switchPanelTab(tabName) {

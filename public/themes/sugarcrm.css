@@ -258,3 +258,22 @@
   background-color: #fafbfc;
   border-top: 1px solid #e1e4e8;
 }
+
+/* Sidebar Toggle Buttons */
+[data-theme="sugarcrm"] .toggle-sidebar-btn {
+  color: #ffffff;
+}
+
+[data-theme="sugarcrm"] .toggle-sidebar-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="sugarcrm"] .show-sidebar-btn {
+  color: #21a9e1;
+  border-color: #21a9e1;
+}
+
+[data-theme="sugarcrm"] .show-sidebar-btn:hover {
+  background-color: #e3f5fc;
+  border-color: #1a8fc4;
+}

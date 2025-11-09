@@ -258,3 +258,22 @@
   background-color: #fafbfc;
   border-top: 1px solid #e1e4e8;
 }
+
+/* Sidebar Toggle Buttons */
+[data-theme="facebook"] .toggle-sidebar-btn {
+  color: #ffffff;
+}
+
+[data-theme="facebook"] .toggle-sidebar-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="facebook"] .show-sidebar-btn {
+  color: #7a9bc4;
+  border-color: #7a9bc4;
+}
+
+[data-theme="facebook"] .show-sidebar-btn:hover {
+  background-color: #e8ebf5;
+  border-color: #6b8bb8;
+}
