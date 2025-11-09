@@ -1,154 +1,154 @@
-/* Facebook Theme - Inspired by ECDA Project */
-[data-theme="facebook"] {
+/* SugarCRM Theme - Inspired by SugarCRM Interface */
+[data-theme="sugarcrm"] {
   --bg-primary: #ffffff;
   --bg-secondary: #f8f9fa;
   --bg-tertiary: #eff1f3;
-  --bg-hover: #6b8bb8;
+  --bg-hover: #158db5;
   --text-primary: #1a1a1a;
   --text-secondary: #5a5a5a;
   --text-tertiary: #8a8a8a;
   --border-color: #dee2e6;
-  --accent-color: #7a9bc4;
-  --accent-hover: #6b8bb8;
-  --accent-light: #e8ebf5;
+  --accent-color: #21a9e1;
+  --accent-hover: #1a8fc4;
+  --accent-light: #e3f5fc;
   --success-bg: #d4edda;
   --success-text: #1e7e34;
   --warning-bg: #fff3cd;
   --warning-text: #856404;
   --error-bg: #f8d7da;
   --error-text: #721c24;
-  --sidebar-bg: #7a9bc4;
+  --sidebar-bg: #21a9e1;
   --editor-bg: #ffffff;
   --preview-bg: #ffffff;
 }
 
-/* Override sidebar text colors for dark sidebar */
-[data-theme="facebook"] .sidebar-header h1 {
+/* Override sidebar text colors for cyan sidebar */
+[data-theme="sugarcrm"] .sidebar-header h1 {
   color: #ffffff;
   font-weight: 600;
 }
 
-[data-theme="facebook"] .user-email {
+[data-theme="sugarcrm"] .user-email {
   color: rgba(255, 255, 255, 0.75);
 }
 
-[data-theme="facebook"] .note-item-title {
+[data-theme="sugarcrm"] .note-item-title {
   color: #ffffff;
   font-weight: 500;
   margin-bottom: 4px;
 }
 
-[data-theme="facebook"] .note-item-preview {
+[data-theme="sugarcrm"] .note-item-preview {
   color: rgba(255, 255, 255, 0.65);
   font-size: 12px;
 }
 
-[data-theme="facebook"] .note-item-date {
+[data-theme="sugarcrm"] .note-item-date {
   color: rgba(255, 255, 255, 0.35);
   font-size: 10px;
   margin-top: 4px;
 }
 
-[data-theme="facebook"] .note-item {
+[data-theme="sugarcrm"] .note-item {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 14px 16px;
 }
 
-[data-theme="facebook"] .note-item:hover {
+[data-theme="sugarcrm"] .note-item:hover {
   background-color: rgba(255, 255, 255, 0.08);
   border-left-color: rgba(255, 255, 255, 0.6);
 }
 
-[data-theme="facebook"] .note-item.active {
+[data-theme="sugarcrm"] .note-item.active {
   background-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
   border-left-color: #ffffff;
 }
 
-[data-theme="facebook"] .note-item.active .note-item-title {
+[data-theme="sugarcrm"] .note-item.active .note-item-title {
   color: #ffffff;
   font-weight: 600;
 }
 
-[data-theme="facebook"] .note-item.active .note-item-preview {
+[data-theme="sugarcrm"] .note-item.active .note-item-preview {
   color: rgba(255, 255, 255, 0.8);
 }
 
-[data-theme="facebook"] .note-item.active .note-item-date {
+[data-theme="sugarcrm"] .note-item.active .note-item-date {
   color: rgba(255, 255, 255, 0.45);
 }
 
-[data-theme="facebook"] .sidebar-header {
+[data-theme="sugarcrm"] .sidebar-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  background-color: #7a9bc4;
+  background-color: #21a9e1;
   padding: 16px;
   min-height: 68px;
 }
 
-[data-theme="facebook"] .search-bar-container {
+[data-theme="sugarcrm"] .search-bar-container {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background-color: #7a9bc4;
+  background-color: #21a9e1;
   padding: 12px;
 }
 
-[data-theme="facebook"] .sidebar-footer {
+[data-theme="sugarcrm"] .sidebar-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
-  background-color: #7a9bc4;
+  background-color: #21a9e1;
   padding: 12px 16px;
 }
 
-[data-theme="facebook"] .search-input {
+[data-theme="sugarcrm"] .search-input {
   background-color: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
   font-size: 13px;
 }
 
-[data-theme="facebook"] .search-input:focus {
+[data-theme="sugarcrm"] .search-input:focus {
   background-color: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-[data-theme="facebook"] .search-input::placeholder {
+[data-theme="sugarcrm"] .search-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
-[data-theme="facebook"] .search-icon {
+[data-theme="sugarcrm"] .search-icon {
   color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
 }
 
-[data-theme="facebook"] .clear-search {
+[data-theme="sugarcrm"] .clear-search {
   color: rgba(255, 255, 255, 0.5);
 }
 
-[data-theme="facebook"] .clear-search:hover {
+[data-theme="sugarcrm"] .clear-search:hover {
   background-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
 }
 
-[data-theme="facebook"] .sidebar {
+[data-theme="sugarcrm"] .sidebar {
   border-right: 1px solid #d5d9de;
 }
 
-[data-theme="facebook"] #new-note-btn {
+[data-theme="sugarcrm"] #new-note-btn {
   background-color: #ffffff;
-  color: #7a9bc4;
+  color: #21a9e1;
   border-color: #ffffff;
   font-weight: 600;
   font-size: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
-[data-theme="facebook"] #new-note-btn:hover {
+[data-theme="sugarcrm"] #new-note-btn:hover {
   background-color: #f5f6f7;
   border-color: #f5f6f7;
-  color: #6b8bb8;
+  color: #1a8fc4;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-[data-theme="facebook"] .btn-settings,
-[data-theme="facebook"] .btn-logout {
+[data-theme="sugarcrm"] .btn-settings,
+[data-theme="sugarcrm"] .btn-logout {
   background-color: rgba(255, 255, 255, 0.15);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.25);
@@ -156,105 +156,105 @@
   font-weight: 500;
 }
 
-[data-theme="facebook"] .btn-settings:hover,
-[data-theme="facebook"] .btn-logout:hover {
+[data-theme="sugarcrm"] .btn-settings:hover,
+[data-theme="sugarcrm"] .btn-logout:hover {
   background-color: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.35);
 }
 
 /* Right Side Panel */
-[data-theme="facebook"] .side-panel {
-  background-color: #6b8bb8;
-  border-left: 1px solid #5a7ca5;
+[data-theme="sugarcrm"] .side-panel {
+  background-color: #1a8fc4;
+  border-left: 1px solid #157ba8;
 }
 
-[data-theme="facebook"] .panel-header {
-  background-color: #5f83ad;
-  border-bottom: 1px solid #5a7ca5;
+[data-theme="sugarcrm"] .panel-header {
+  background-color: #1889bd;
+  border-bottom: 1px solid #157ba8;
 }
 
-[data-theme="facebook"] .panel-tab {
+[data-theme="sugarcrm"] .panel-tab {
   color: rgba(255, 255, 255, 0.7);
 }
 
-[data-theme="facebook"] .panel-tab:hover {
+[data-theme="sugarcrm"] .panel-tab:hover {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="facebook"] .panel-tab.active {
+[data-theme="sugarcrm"] .panel-tab.active {
   color: #ffffff;
   border-bottom-color: #ffffff;
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-[data-theme="facebook"] .close-panel-btn {
+[data-theme="sugarcrm"] .close-panel-btn {
   color: rgba(255, 255, 255, 0.7);
 }
 
-[data-theme="facebook"] .close-panel-btn:hover {
+[data-theme="sugarcrm"] .close-panel-btn:hover {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="facebook"] .toc-item,
-[data-theme="facebook"] .version-item {
+[data-theme="sugarcrm"] .toc-item,
+[data-theme="sugarcrm"] .version-item {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
 
-[data-theme="facebook"] .toc-item:hover,
-[data-theme="facebook"] .version-item:hover {
+[data-theme="sugarcrm"] .toc-item:hover,
+[data-theme="sugarcrm"] .version-item:hover {
   background-color: rgba(255, 255, 255, 0.15);
   border-left-color: #ffffff;
 }
 
-[data-theme="facebook"] .toc-item.level-1,
-[data-theme="facebook"] .toc-item.level-2,
-[data-theme="facebook"] .toc-item.level-3,
-[data-theme="facebook"] .toc-item.level-4,
-[data-theme="facebook"] .toc-item.level-5,
-[data-theme="facebook"] .toc-item.level-6 {
+[data-theme="sugarcrm"] .toc-item.level-1,
+[data-theme="sugarcrm"] .toc-item.level-2,
+[data-theme="sugarcrm"] .toc-item.level-3,
+[data-theme="sugarcrm"] .toc-item.level-4,
+[data-theme="sugarcrm"] .toc-item.level-5,
+[data-theme="sugarcrm"] .toc-item.level-6 {
   color: rgba(255, 255, 255, 0.9);
 }
 
-[data-theme="facebook"] .version-number {
+[data-theme="sugarcrm"] .version-number {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-[data-theme="facebook"] .version-annotation {
+[data-theme="sugarcrm"] .version-annotation {
   color: rgba(255, 255, 255, 0.9);
 }
 
-[data-theme="facebook"] .version-timestamp {
+[data-theme="sugarcrm"] .version-timestamp {
   color: rgba(255, 255, 255, 0.6);
 }
 
-[data-theme="facebook"] .toc-empty,
-[data-theme="facebook"] .versions-empty {
+[data-theme="sugarcrm"] .toc-empty,
+[data-theme="sugarcrm"] .versions-empty {
   color: rgba(255, 255, 255, 0.5);
 }
 
 /* Main Editor Area Refinements */
-[data-theme="facebook"] .editor-header {
+[data-theme="sugarcrm"] .editor-header {
   background-color: #fafbfc;
   border-bottom: 1px solid #e1e4e8;
   padding: 16px 24px;
   min-height: 68px;
 }
 
-[data-theme="facebook"] .note-title {
+[data-theme="sugarcrm"] .note-title {
   color: #24292e;
   font-weight: 600;
 }
 
-[data-theme="facebook"] .note-title:focus {
+[data-theme="sugarcrm"] .note-title:focus {
   background-color: #f6f8fa;
 }
 
-[data-theme="facebook"] .editor-footer {
+[data-theme="sugarcrm"] .editor-footer {
   background-color: #fafbfc;
   border-top: 1px solid #e1e4e8;
 }

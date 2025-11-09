@@ -6,6 +6,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
 /* Common Variables */
 :root {
   /* Typography scale */
@@ -62,7 +67,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-primary);
+  background-color: #f5f5f5;
   color: var(--text-primary);
 }
 
@@ -93,6 +98,7 @@ body {
   justify-content: space-between;
   gap: var(--space-md);
   background-color: var(--bg-primary);
+  min-height: 68px;
 }
 
 .sidebar-header h1 {
@@ -193,26 +199,26 @@ body {
 }
 
 .note-item {
-  padding: var(--space-sm) var(--space-md);
-  margin: 2px var(--space-sm);
-  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  margin: 0;
+  border-radius: 0;
   cursor: pointer;
-  transition: all var(--transition-base);
-  border: 1px solid transparent;
+  transition: all var(--transition-fast);
+  border: none;
+  border-left: 3px solid transparent;
   background-color: transparent;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .note-item:hover {
   background-color: var(--bg-hover);
-  border-color: var(--border-color);
-  transform: translateX(2px);
+  border-left-color: var(--accent-color);
 }
 
 .note-item.active {
   background-color: var(--accent-color);
   color: white;
-  border-color: var(--accent-color);
-  box-shadow: var(--shadow-sm);
+  border-left-color: var(--accent-color);
 }
 
 .note-item-title {
@@ -303,6 +309,7 @@ body {
   gap: var(--space-md);
   background-color: var(--bg-primary);
   box-shadow: var(--shadow-xs);
+  min-height: 68px;
 }
 
 .note-title {
@@ -1581,7 +1588,7 @@ body {
 
 /* Facebook Theme Preview */
 .theme-preview-facebook .theme-preview-sidebar {
-  background-color: #f0f2f5;
+  background-color: #7a9bc4;
 }
 
 .theme-preview-facebook .theme-preview-header {
@@ -1602,6 +1609,19 @@ body {
 }
 
 .theme-preview-yahoo .theme-preview-content {
+  background-color: #ffffff;
+}
+
+/* SugarCRM Theme Preview */
+.theme-preview-sugarcrm .theme-preview-sidebar {
+  background-color: #21a9e1;
+}
+
+.theme-preview-sugarcrm .theme-preview-header {
+  background-color: #ffffff;
+}
+
+.theme-preview-sugarcrm .theme-preview-content {
   background-color: #ffffff;
 }
 
@@ -1645,19 +1665,21 @@ body {
 }
 
 .note-item {
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-color);
+  border-left: 3px solid transparent;
   color: var(--text-primary);
 }
 
 .note-item:hover {
   background-color: var(--bg-hover);
+  border-left-color: var(--accent-color);
 }
 
 .note-item.active {
   background-color: var(--accent-color);
   color: #ffffff;
-  border-color: var(--accent-color);
+  border-left-color: var(--accent-color);
 }
 
 .note-item-date {

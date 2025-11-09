@@ -1,7 +1,5 @@
 # Notepad with Supabase Backend
 
-![Notepad Application](ecda-project.png)
-
 A simple, clean web-based notepad application built with Node.js, TypeScript, Express, and Supabase as the backend database.
 
 ## Features

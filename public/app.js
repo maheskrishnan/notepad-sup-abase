@@ -1400,7 +1400,7 @@ function renderPreview() {
 
 // Theme Functions
 function loadTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'default';
+  const savedTheme = localStorage.getItem('theme') || 'sugarcrm';
   setTheme(savedTheme);
 }
 
